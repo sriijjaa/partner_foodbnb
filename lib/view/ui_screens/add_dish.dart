@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:partner_foodbnb/controller/menu_controller.dart';
 
 class AddDishScreen extends StatelessWidget {
-   AddDishScreen({super.key});
-
+  AddDishScreen({super.key});
 
   final DishMenuController dmc = Get.put(DishMenuController());
 
   @override
   Widget build(BuildContext context) {
-        final Color primaryRed = Colors.red.shade400;
+    final Color primaryRed = Colors.red.shade400;
 
-      return Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: primaryRed,
@@ -21,8 +19,7 @@ class AddDishScreen extends StatelessWidget {
         title: const Text("Add Dish", style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {}
-          
+          onPressed: () {},
         ),
       ),
       body: SingleChildScrollView(
@@ -30,36 +27,50 @@ class AddDishScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("'Dish Name'"),
+            TextField(
+              controller: dmc.dishnameController,
+              decoration: InputDecoration(
+                labelText: "Dish Name",
+                hintText: 'Enter dish Name',
+              ),
+            ),
 
-            TextField(controller: dmc.dishnameController, decoration: InputDecoration(hintText: "Enter dish name"),),
-
-            Text("Description")
-
-            AddDishScreen.textField(
-              "Short description",
-              dishDescription,
+            TextField(
+              controller: dmc.dishDescription,
+              decoration: InputDecoration(
+                labelText: "Dexcription",
+                hintText: 'Short Description',
+              ),
               maxLines: 3,
             ),
-
-            AddDishScreen.label("Price"),
-            AddDishScreen.textField(
-              "Enter price",
-              dishPrice,
-              keyboardType: TextInputType.number,
+            TextField(
+              controller: dmc.dishPrice,
+              decoration: InputDecoration(
+                labelText: "Price",
+                hintText: 'Enter Price',
+              ),
             ),
 
-          Text('Category'),
+            TextField(
+              keyboardType: TextInputType.number,
+              controller: dmc.dishPrice,
+              decoration: InputDecoration(
+                labelText: "Price",
+                hintText: 'Enter Price',
+              ),
+            ),
+
+            Text('Category'),
             DropdownButtonFormField<String>(
               items: const [
+                DropdownMenuItem(value: "", child: Text("")),
                 DropdownMenuItem(value: "Starters", child: Text("Starters")),
                 DropdownMenuItem(value: "Mains", child: Text("Mains")),
                 DropdownMenuItem(value: "Desserts", child: Text("Desserts")),
               ],
               onChanged: (value) {
-dmc.selectedCategory = value;
+                dmc.selectedCategory = value;
               },
-              decoration: AddDishScreen.inputDecoration("Select category"),
             ),
 
             const SizedBox(height: 20),
@@ -71,7 +82,7 @@ dmc.selectedCategory = value;
                 GestureDetector(
                   onTap: () {
                     if (dmc.currentQuantity > 0) {
-                   dmc.currentQuantity--;
+                      dmc.currentQuantity--;
                     }
                   },
                   child: Container(
@@ -96,7 +107,7 @@ dmc.selectedCategory = value;
                 // add
                 GestureDetector(
                   onTap: () {
-                   dmc.currentQuantity++;
+                    dmc.currentQuantity++;
                   },
                   child: Container(
                     width: 45,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
 import 'package:partner_foodbnb/view/auth_screens/forget_password.dart';
 import 'package:partner_foodbnb/view/auth_screens/register.dart'; // Import Firebase
