@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:partner_foodbnb/view/nav_screens/earnings_screen.dart';
-import 'package:partner_foodbnb/view/nav_screens/menu_screen_copy.dart';
+import 'package:partner_foodbnb/view/nav_screens/menu_screen.dart';
+
 import '../nav_screens/orders_screen.dart';
 import '../nav_screens/profile_screen.dart';
 

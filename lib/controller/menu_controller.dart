@@ -42,6 +42,10 @@ class DishMenuController extends GetxController {
         "restaurant_id": FirebaseAuth.instance.currentUser?.uid,
         "image": [],
       });
+      dishnameController.clear();
+      dishDescription.clear();
+      dishPrice.clear();
+      dishQntAvailable.clear();
     } catch (e) {
       // ScaffoldMessenger.of(
       //   context,

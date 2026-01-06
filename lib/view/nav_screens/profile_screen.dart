@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:partner_foodbnb/view/auth_screens/login.dart';
 import 'package:partner_foodbnb/view/ui_screens/customerhelp_screen.dart';
 import 'package:partner_foodbnb/view/ui_screens/edit_profile.dart';
@@ -40,10 +41,7 @@ class ProfileScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
               ),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditProfile()),
-                );
+                Get.to(() => EditProfile());
               },
             ),
 
@@ -55,10 +53,7 @@ class ProfileScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
               ),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingsScreen()),
-                );
+                Get.to(() => SettingsScreen());
               },
             ),
             SizedBox(height: 20),
@@ -69,10 +64,7 @@ class ProfileScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
               ),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CustomerHelpScreen()),
-                );
+                Get.to(() => CustomerHelpScreen());
               },
             ),
 
@@ -85,10 +77,7 @@ class ProfileScreen extends StatelessWidget {
                   style: TextStyle(color: Colors.black),
                 ),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Login()),
-                  );
+                  Get.to(() => Login());
                 },
               ),
             ),

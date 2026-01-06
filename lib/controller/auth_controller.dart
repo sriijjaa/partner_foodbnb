@@ -62,7 +62,10 @@ class AuthController extends GetxController {
       }
 
       Get.snackbar("Error", errorMessage);
-    } finally {
+    } 
+    
+    
+    finally {
       isLoading.value = false;
     }
   }

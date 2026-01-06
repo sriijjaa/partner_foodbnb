@@ -8,8 +8,8 @@ import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/menu_controller.dart';
 import 'package:partner_foodbnb/view/ui_screens/add_dish.dart';
 
-class MenuPage extends StatelessWidget {
-  MenuPage({super.key});
+class MenuScreen extends StatelessWidget {
+  MenuScreen({super.key});
 
   final List<String> categories = [
     "All",
@@ -142,7 +142,8 @@ class MenuPage extends StatelessWidget {
           bool isSelected = selectedCategoryIndex.value == index;
 
           return GestureDetector(
-            onTap: () => (() => selectedCategoryIndex.value = index),//dmc why not needed here
+            onTap: () => (() =>
+                selectedCategoryIndex.value = index), //dmc why not needed here
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 6),
               padding: const EdgeInsets.symmetric(horizontal: 20),

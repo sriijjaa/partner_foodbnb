@@ -27,12 +27,9 @@ class CustomerHelpScreen extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: 16),
             child: Center(
-              child: Text(
-                "History",
-                style: TextStyle(fontSize: 16),
-              ),
+              child: Text("History", style: TextStyle(fontSize: 16)),
             ),
-          )
+          ),
         ],
       ),
 
@@ -41,14 +38,10 @@ class CustomerHelpScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             // Heading
             const Text(
               "How can we help you today, Chef?",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -72,10 +65,7 @@ class CustomerHelpScreen extends StatelessWidget {
             // Quick Actions
             const Text(
               "Quick Actions",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 16),
@@ -122,10 +112,7 @@ class CustomerHelpScreen extends StatelessWidget {
               children: const [
                 Text(
                   "Recent Tickets",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   "View All",
@@ -160,10 +147,7 @@ class CustomerHelpScreen extends StatelessWidget {
             // Popular Articles
             const Text(
               "Popular Articles",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 16),
@@ -190,8 +174,6 @@ class CustomerHelpScreen extends StatelessWidget {
     );
   }
 
-  
-
   static Widget _quickCard({
     required IconData icon,
     required String title,
@@ -215,10 +197,7 @@ class CustomerHelpScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(color: Colors.grey.shade600),
-          ),
+          Text(subtitle, style: TextStyle(color: Colors.grey.shade600)),
         ],
       ),
     );
@@ -244,18 +223,12 @@ class CustomerHelpScreen extends StatelessWidget {
             children: [
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(color: Colors.grey.shade600),
-              ),
+              Text(subtitle, style: TextStyle(color: Colors.grey.shade600)),
             ],
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
             child: Text(
               status,
               style: TextStyle(
