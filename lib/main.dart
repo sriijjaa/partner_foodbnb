@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:partner_foodbnb/view/auth_screens/login.dart';
 import 'package:partner_foodbnb/firebase_options.dart';
+import 'package:partner_foodbnb/view/ui_screens/splashscreen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(),
-      home: Login(),
+      home: Splashscreen(),
     );
   }
 }

@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      body: Obx(() => pages[hc.selectedIndex.value]),
+      body: Obx(() => pages[hc.selectedIndex.value]),//obx used since we have taken the value from rx variable
 
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(

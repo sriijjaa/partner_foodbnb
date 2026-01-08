@@ -9,7 +9,6 @@ class Login extends StatelessWidget {
 
   final AuthController ac = Get.put(AuthController());
 
-  // The Login Logic
   @override
   Widget build(BuildContext context) {
     final Color primaryRed = Colors.red.shade400;
@@ -44,26 +43,24 @@ class Login extends StatelessWidget {
               ),
               const SizedBox(height: 40),
 
-              // EMAIL FIELD
               _label("Email"),
               _textField(
                 hint: "Enter email",
                 icon: Icons.person_outline,
-                controller: ac.emailController, // Pass controller
+                controller: ac.emailController, 
               ),
 
               const SizedBox(height: 20),
 
-              // PASSWORD FIELD
               _label("Password"),
               _textField(
                 hint: "Enter password",
                 icon: Icons.lock_outline,
                 isPassword: true,
-                controller: ac.passwordController, // Pass controller
+                controller: ac.passwordController, 
               ),
 
-              // FORGOT PASSWORD
+           
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -84,7 +81,6 @@ class Login extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // LOGIN BUTTON
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -140,7 +136,7 @@ class Login extends StatelessWidget {
     );
   }
 
-  // UPDATED HELPERS
+
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),

@@ -7,7 +7,7 @@ class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
 
   final AuthController ac = Get.put(AuthController());
-  // The Auth Logic
+
   @override
   Widget build(BuildContext context) {
     final Color primaryRed = Colors.red.shade400;
@@ -22,7 +22,7 @@ class RegisterScreen extends StatelessWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Get.back(),
               ),
               const SizedBox(height: 20),
               RichText(
@@ -37,7 +37,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: "FoodBNB ",
+                      text: "Foodbnb ",
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -76,13 +76,20 @@ class RegisterScreen extends StatelessWidget {
                 controller: ac.restaurantNamecontroller,
               ),
               const SizedBox(height: 20),
-
+              _label("Restaurant Description"),
+              _textField(
+                hint: "Enter Restaurant Description",
+                icon: Icons.house_outlined,
+                controller: ac.restaurantDescription,
+              ),
+              const SizedBox(height: 20),
               _label("Restaurant Address"),
               _textField(
                 hint: "Enter full Address of Restaurant",
                 icon: Icons.maps_home_work_sharp,
                 controller: ac.restaurantAddress,
               ),
+
               const SizedBox(height: 20),
 
               _label("Email"),

@@ -250,7 +250,7 @@ class AvailabilitySection extends StatelessWidget {
             ),
             SizedBox(height: 8),
 
-            /// TIME BOXES (USED HERE 👇)
+            
             Row(
               children: [
                 Expanded(child: timeBox("09:00 AM")),

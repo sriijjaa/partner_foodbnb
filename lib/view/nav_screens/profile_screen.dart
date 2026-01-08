@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:partner_foodbnb/controller/auth_controller.dart';
 import 'package:partner_foodbnb/view/auth_screens/login.dart';
 import 'package:partner_foodbnb/view/ui_screens/customerhelp_screen.dart';
 import 'package:partner_foodbnb/view/ui_screens/edit_profile.dart';
@@ -8,6 +9,8 @@ import 'package:partner_foodbnb/view/ui_screens/setting_screen.dart';
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
   final Color primaryRed = Colors.red.shade400;
+
+  final AuthController ac = Get.put(AuthController());
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -77,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
                   style: TextStyle(color: Colors.black),
                 ),
                 onTap: () {
-                  Get.to(() => Login());
+                  ac.logout();
                 },
               ),
             ),

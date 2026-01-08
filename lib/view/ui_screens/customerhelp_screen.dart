@@ -46,7 +46,6 @@ class CustomerHelpScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Search bar
             TextField(
               decoration: InputDecoration(
                 hintText: "Search for issues (e.g., payouts)",

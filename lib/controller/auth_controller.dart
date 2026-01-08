@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:partner_foodbnb/view/auth_screens/login.dart';
 import 'package:partner_foodbnb/view/ui_screens/home_screen.dart';
 
 class AuthController extends GetxController {
@@ -16,6 +19,7 @@ class AuthController extends GetxController {
   final regPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   final restaurantAddress = TextEditingController();
+  final restaurantDescription = TextEditingController();
 
   //for forget page
   final TextEditingController forgetEmailController = TextEditingController();
@@ -24,7 +28,7 @@ class AuthController extends GetxController {
   final TextEditingController forgetConfirmPasswordController =
       TextEditingController();
 
-  //for edit_profile page
+  //for edit_profile
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController kitchenNameController = TextEditingController();
@@ -38,13 +42,30 @@ class AuthController extends GetxController {
   RxBool isAcceptingOrders = true.obs;
 
   final FirebaseFirestore firebase = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  final RxMap userData = {}.obs;
+
+  Future<void> getUserData() async {
+    try {
+      var snapshot = await firebase
+          .collection('moms_kitchens')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .get();
+
+      userData.value = snapshot.data() as Map;
+
+      log("Got user data: $userData");
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 
   Future<void> handleLogin() async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       // ScaffoldMessenger.of(context).showSnackBar(
       //   const SnackBar(content: Text("Please fill in all fields")),
       // );
-
       //get.snackbar instead of snackbar in scaffoldMessenger, no mount and earlier navigation method in Getx ,title for showing msg at top of the app and msg to display the msg that we want after the action
 
       Get.snackbar("Error", "Please fill in all fields");
@@ -90,25 +111,34 @@ class AuthController extends GetxController {
         password: regPasswordController.text.trim(),
       );
 
-      //to store data in firestore
+      //to store data data in
       await FirebaseFirestore.instance
-          .collection('Users')
+          .collection('moms_kitchens')
           .doc(FirebaseAuth.instance.currentUser?.uid)
-          .set(
-            {
-              "email": regEmailController.text.trim(),
-              "name": nameController.text.trim(),
-              "joined_at":
-                  DateTime.now(), //or we can also give time by Timestamp.now()
-              "uid": FirebaseAuth.instance.currentUser?.uid,
-              "user_type": "restaurant",
-              "address": restaurantAddress.text.trim(),
-              "push_token": "",
-              "restaurant_name": restaurantNamecontroller.text.trim(),
-              "wallet_balance": 0,
-              "lifetime_earnings": 0,
-            },
-          ); //if we want to auto set use.set() then set the doc using .doc for adding the Id which is required and .add if we want to add on our own .set to set own docs , for using the id we used the currentuser part.
+          .set({
+            "uid": FirebaseAuth.instance.currentUser?.uid,
+            "createdAt":
+                DateTime.now(), //or we can also give time by using Timestamp.now()
+            "cuisine": "",
+            "deliveryTime": "",
+            "description": restaurantDescription.text.trim(),
+            "featuredDishImage": "",
+            "isVeg": "",
+            "location": "",
+            "priceForOne": '',
+            "profileImage": '',
+            'rating': 5,
+            'specialties': '',
+            'totalOrders': 0,
+            "wallet_balance": 0,
+            "lifetime_earnings": 0,
+            "push_token": "",
+
+            "email": regEmailController.text.trim(),
+            "locationName": restaurantAddress.text.trim(),
+            "name": restaurantNamecontroller.text.trim(),
+            "ownerName": nameController.text.trim(),
+          }); //if we want to auto set use.set() then set the doc using .doc for adding the Id which is required and .add if we want to add on our own .set to set own docs , for using the id we used the currentuser part.
 
       // Success: Navigate to Login or Home
 
@@ -122,6 +152,16 @@ class AuthController extends GetxController {
       Get.snackbar('Error', message);
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void logout() {
+    try {
+      auth.signOut();
+      Get.to(() => Login());
+      
+    } catch (e) {
+      log(e.toString());
     }
   }
 }
