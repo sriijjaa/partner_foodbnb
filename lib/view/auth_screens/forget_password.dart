@@ -64,29 +64,8 @@ class ForgetPassword extends StatelessWidget {
               _label("Phone or Email"),
               _textField(
                 controller: ac.forgetEmailController,
-
-                hint: "Enter phone number or email",
+                hint: "Enter email",
                 icon: Icons.person_outline,
-              ),
-
-              const SizedBox(height: 20),
-
-              _label("New Password"),
-              _textField(
-                controller: ac.forgetPasswordController,
-                hint: "Create new password",
-                icon: Icons.lock_outline,
-                isPassword: true,
-              ),
-
-              const SizedBox(height: 20),
-
-              _label("Confirm Password"),
-              _textField(
-                controller: ac.confirmPasswordController,
-                hint: "Re-enter new password",
-                icon: Icons.lock_outline,
-                isPassword: true,
               ),
 
               const SizedBox(height: 10),
@@ -109,8 +88,7 @@ class ForgetPassword extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Get.snackbar('Successful', 'Password reset successful');
-                    Get.to(() => Login());
+                    ac.forgetPaswword();
                   },
                   child: const Text(
                     "Reset Password",

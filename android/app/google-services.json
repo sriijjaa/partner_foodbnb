@@ -1,131 +1,45 @@
 {
   "project_info": {
-    "project_number": "217297623709",
-    "project_id": "foodbnb-10778",
-    "storage_bucket": "foodbnb-10778.firebasestorage.app"
+    "project_number": "918264432794",
+    "project_id": "foodbnb-partner-app",
+    "storage_bucket": "foodbnb-partner-app.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:217297623709:android:793f71340bd08c0b021274",
+        "mobilesdk_app_id": "1:918264432794:android:b4c6ffc00524ecc4207723",
+        "android_client_info": {
+          "package_name": "com.example.foodbnb_partnerapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw5-7dkBqbmSbceEdOcudQdfIHLl8-Ssg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918264432794:android:91c91130c3beab98207723",
         "android_client_info": {
           "package_name": "com.example.partner_foodbnb"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "217297623709-8r88bfu94pq34lb7170deaeab5jj7q5r.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAsADjT0FMyvgwx6-qwjZrPxMwuLDPNCCM"
+          "current_key": "AIzaSyBw5-7dkBqbmSbceEdOcudQdfIHLl8-Ssg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "217297623709-8r88bfu94pq34lb7170deaeab5jj7q5r.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "217297623709-6vbkgatflstlvu4btms1d1h04lhefd22.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.foodbnb"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:217297623709:android:2d63c49b7ab1bfff021274",
-        "android_client_info": {
-          "package_name": "com.insyssky.foodbnb"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "217297623709-4m4ujsauqeav4pafadjegh8l8v49hj12.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.insyssky.foodbnb",
-            "certificate_hash": "a5721cc95b8c5cfe7ba8cffedda8640e330492f8"
-          }
-        },
-        {
-          "client_id": "217297623709-9g61qo8ucnac72q4pqq15rdsqp545nra.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.insyssky.foodbnb",
-            "certificate_hash": "fcdc8953fa18fd22b45ff157512d14091f9662b3"
-          }
-        },
-        {
-          "client_id": "217297623709-8r88bfu94pq34lb7170deaeab5jj7q5r.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAsADjT0FMyvgwx6-qwjZrPxMwuLDPNCCM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "217297623709-8r88bfu94pq34lb7170deaeab5jj7q5r.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "217297623709-6vbkgatflstlvu4btms1d1h04lhefd22.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.foodbnb"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:217297623709:android:e303c6de59fbceed021274",
-        "android_client_info": {
-          "package_name": "com.insyssky.foodbnbmom"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "217297623709-8r88bfu94pq34lb7170deaeab5jj7q5r.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAsADjT0FMyvgwx6-qwjZrPxMwuLDPNCCM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "217297623709-8r88bfu94pq34lb7170deaeab5jj7q5r.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "217297623709-6vbkgatflstlvu4btms1d1h04lhefd22.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.foodbnb"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

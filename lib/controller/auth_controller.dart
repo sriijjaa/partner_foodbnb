@@ -18,16 +18,13 @@ class AuthController extends GetxController {
   final restaurantNamecontroller = TextEditingController();
   final regEmailController = TextEditingController();
   final regPasswordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
-  final restaurantAddress = TextEditingController();
-  final restaurantDescription = TextEditingController();
+  final regConfirmPasswordController = TextEditingController();
+  final regRestaurantAddress = TextEditingController();
+  final regRestaurantDesController = TextEditingController();
+  final regPhoneController = TextEditingController();
 
   //for forget page
   final TextEditingController forgetEmailController = TextEditingController();
-  final TextEditingController forgetPasswordController =
-      TextEditingController();
-  final TextEditingController forgetConfirmPasswordController =
-      TextEditingController();
 
   //for edit_profile
 
@@ -42,10 +39,13 @@ class AuthController extends GetxController {
   RxBool isAvailable = true.obs;
   RxBool isAcceptingOrders = true.obs;
 
-  final FirebaseFirestore firebase = FirebaseFirestore.instanceFor(
-    app: Firebase.app(),
-    databaseId: 'firestore-db-foodbnb',
-  );
+  // final FirebaseFirestore firebase = FirebaseFirestore.instanceFor(
+  //   app: Firebase.app(),
+  //   databaseId: 'firestore-db-foodbnb',
+  // );
+
+  final FirebaseFirestore firebase = FirebaseFirestore.instance;
+
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   final RxMap userData = {}.obs;
@@ -59,6 +59,11 @@ class AuthController extends GetxController {
 
       userData.value = snapshot.data() as Map;
 
+      fullNameController.text = userData['ownerName'] ?? '';
+      kitchenNameController.text = userData['name'] ?? '';
+      aboutCooking.text = userData['description'] ?? '';
+      phoneNumberController.text = userData['phone'] ?? '';
+      kitchenAddressController.text = userData['locationName'] ?? '';
       log("Got user data: $userData");
     } catch (e) {
       log(e.toString());
@@ -75,7 +80,6 @@ class AuthController extends GetxController {
       Get.snackbar("Error", "Please fill in all fields");
       return;
     }
-
     // setState(() => isLoading = true); instead we use only the variable then .value to get the value
 
     isLoading.value = true;
@@ -105,7 +109,7 @@ class AuthController extends GetxController {
   }
 
   Future<void> registerUser() async {
-    if (regPasswordController.text != confirmPasswordController.text) {
+    if (regPasswordController.text != regConfirmPasswordController.text) {
       Get.snackbar('Error', 'Passwords do not match!');
       return;
     }
@@ -115,10 +119,7 @@ class AuthController extends GetxController {
         email: regEmailController.text.trim(),
         password: regPasswordController.text.trim(),
       );
-      final FirebaseFirestore customDB = FirebaseFirestore.instanceFor(
-        app: Firebase.app(),
-        databaseId: "firestore-db-foodbnb",
-      );
+      final FirebaseFirestore customDB = FirebaseFirestore.instance;
       //to store data data in
       await customDB
           .collection('moms_kitchens')
@@ -129,7 +130,7 @@ class AuthController extends GetxController {
                 DateTime.now(), //or we can also give time by using Timestamp.now()
             "cuisine": "",
             "deliveryTime": "",
-            "description": restaurantDescription.text.trim(),
+            "description": regRestaurantDesController.text.trim(),
             "featuredDishImage": "",
             "isVeg": "",
             "location": "",
@@ -141,9 +142,9 @@ class AuthController extends GetxController {
             "wallet_balance": 0,
             "lifetime_earnings": 0,
             "push_token": "",
-
+            "phone": regPhoneController.text,
             "email": regEmailController.text.trim(),
-            "locationName": restaurantAddress.text.trim(),
+            "locationName": regRestaurantAddress.text.trim(),
             "name": restaurantNamecontroller.text.trim(),
             "ownerName": nameController.text.trim(),
           }); //if we want to auto set use.set() then set the doc using .doc for adding the Id which is required and .add if we want to add on our own .set to set own docs , for using the id we used the currentuser part.
@@ -173,6 +174,28 @@ class AuthController extends GetxController {
       Get.to(() => Login());
     } catch (e) {
       log(e.toString());
+    }
+  }
+
+  Future<void> updateProfile(String id) async {
+    try {
+      await firebase.collection('moms_kitchen').doc().update({});
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Future<void> forgetPaswword() async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: forgetEmailController.text.trim(),
+      );
+
+      Get.snackbar('Successful', 'Reset Link sent to your Email');
+      Get.to(() => Login());
+      log("Password reset email sent");
+    } catch (e) {
+      log("forgetPaswword exception: $e");
     }
   }
 }

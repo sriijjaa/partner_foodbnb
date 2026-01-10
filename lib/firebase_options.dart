@@ -26,7 +26,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -50,22 +53,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAsADjT0FMyvgwx6-qwjZrPxMwuLDPNCCM',
-    appId: '1:217297623709:android:793f71340bd08c0b021274',
-    messagingSenderId: '217297623709',
-    projectId: 'foodbnb-10778',
-    storageBucket: 'foodbnb-10778.firebasestorage.app',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBmTc_2hTA-eAkkM6Q8NXJqNhFwMUy4iIY',
-    appId: '1:217297623709:ios:8359eca1e3a289f1021274',
-    messagingSenderId: '217297623709',
-    projectId: 'foodbnb-10778',
-    storageBucket: 'foodbnb-10778.firebasestorage.app',
-    androidClientId: '217297623709-4m4ujsauqeav4pafadjegh8l8v49hj12.apps.googleusercontent.com',
-    iosClientId: '217297623709-15d60m904ctr7kotlcpi5r0p20hvb6p7.apps.googleusercontent.com',
-    iosBundleId: 'com.example.partnerFoodbnb',
+    apiKey: 'AIzaSyBw5-7dkBqbmSbceEdOcudQdfIHLl8-Ssg',
+    appId: '1:918264432794:android:91c91130c3beab98207723',
+    messagingSenderId: '918264432794',
+    projectId: 'foodbnb-partner-app',
+    storageBucket: 'foodbnb-partner-app.firebasestorage.app',
   );
 
 }

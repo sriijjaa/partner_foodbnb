@@ -22,7 +22,7 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: Colors.red,
               child: Icon(Icons.person, size: 40, color: Colors.black),
             ),
-
+                
             const SizedBox(height: 12),
 
             Obx(

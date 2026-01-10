@@ -80,14 +80,14 @@ class RegisterScreen extends StatelessWidget {
               _textField(
                 hint: "Enter Restaurant Description",
                 icon: Icons.house_outlined,
-                controller: ac.restaurantDescription,
+                controller: ac.regRestaurantDesController,
               ),
               const SizedBox(height: 20),
               _label("Restaurant Address"),
               _textField(
                 hint: "Enter full Address of Restaurant",
                 icon: Icons.maps_home_work_sharp,
-                controller: ac.restaurantAddress,
+                controller: ac.regRestaurantAddress,
               ),
 
               const SizedBox(height: 20),
@@ -99,6 +99,14 @@ class RegisterScreen extends StatelessWidget {
                 controller: ac.regEmailController,
               ),
               const SizedBox(height: 20),
+              _label("Enter Phone"),
+              _textField(
+                hint: "Enter your Phone Number",
+                icon: Icons.phone,
+
+                controller: ac.regPhoneController,
+              ),
+              const SizedBox(height: 30),
 
               _label("Create Password"),
               _textField(
@@ -114,7 +122,7 @@ class RegisterScreen extends StatelessWidget {
                 hint: "Re-enter password",
                 icon: Icons.lock_outline,
                 isPassword: true,
-                controller: ac.confirmPasswordController,
+                controller: ac.regConfirmPasswordController,
               ),
               const SizedBox(height: 30),
 
