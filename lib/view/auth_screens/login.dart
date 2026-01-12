@@ -47,7 +47,7 @@ class Login extends StatelessWidget {
               _textField(
                 hint: "Enter email",
                 icon: Icons.person_outline,
-                controller: ac.emailController, 
+                controller: ac.emailController,
               ),
 
               const SizedBox(height: 20),
@@ -57,10 +57,9 @@ class Login extends StatelessWidget {
                 hint: "Enter password",
                 icon: Icons.lock_outline,
                 isPassword: true,
-                controller: ac.passwordController, 
+                controller: ac.passwordController,
               ),
 
-           
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -106,6 +105,36 @@ class Login extends StatelessWidget {
                         ),
                 ),
               ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Divider(thickness: 2, color: Colors.blueGrey),
+                  Text('Or', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Divider(),
+                ],
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  ac.signinWithGoogle();
+                },
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+
+                    children: [
+                      Image.asset(
+                        'assets/images/google_2.jpg',
+                        height: 50,
+                        width: 50,
+                      ),
+                      Text('Sign up with Google'),
+                    ],
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 20),
               Center(
@@ -135,7 +164,6 @@ class Login extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _label(String text) {
     return Padding(

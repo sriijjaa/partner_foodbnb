@@ -1,10 +1,10 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:partner_foodbnb/view/auth_screens/login.dart';
 import 'package:partner_foodbnb/view/ui_screens/home_screen.dart';
 
@@ -44,6 +44,8 @@ class AuthController extends GetxController {
   //   databaseId: 'firestore-db-foodbnb',
   // );
 
+  //
+
   final FirebaseFirestore firebase = FirebaseFirestore.instance;
 
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -57,7 +59,7 @@ class AuthController extends GetxController {
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .get();
 
-      userData.value = snapshot.data() as Map;
+      userData.value = snapshot.data() as Map; //snapshot of each doc as map
 
       fullNameController.text = userData['ownerName'] ?? '';
       kitchenNameController.text = userData['name'] ?? '';
@@ -72,17 +74,12 @@ class AuthController extends GetxController {
 
   Future<void> handleLogin() async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text("Please fill in all fields")),
-      // );
       //get.snackbar instead of snackbar in scaffoldMessenger, no mount and earlier navigation method in Getx ,title for showing msg at top of the app and msg to display the msg that we want after the action
-
       Get.snackbar("Error", "Please fill in all fields");
       return;
     }
-    // setState(() => isLoading = true); instead we use only the variable then .value to get the value
-
-    isLoading.value = true;
+    isLoading.value =
+        true; // setState(() => isLoading = true); instead we use only the variable then .value to get the value
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -147,12 +144,13 @@ class AuthController extends GetxController {
             "locationName": regRestaurantAddress.text.trim(),
             "name": restaurantNamecontroller.text.trim(),
             "ownerName": nameController.text.trim(),
-          }); //if we want to auto set use.set() then set the doc using .doc for adding the Id which is required and .add if we want to add on our own .set to set own docs , for using the id we used the currentuser part.
+          }); //if we want to auto set or want for specified/fixed/particular document use.set()and set the doc using .doc for adding the Id.
+      // .add if we want to create/add on our own, without the need to specify a custom doc Id. ,generates auto id
+      //for using the id we used the currentuser part.
 
-      // Success: Navigate to Login or Home
       final users = customDB
           .collection('moms_kitchens')
-          .doc('5D8QCam2SKZpJ0pgSaZ0T6sz9od2')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
           .get();
       print(users);
       Get.snackbar('Success', 'Account Registered Successfully');
@@ -168,6 +166,62 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> signinWithGoogle() async {
+    log("hi");
+    try {
+      isLoading.value = true;
+
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        isLoading.value = false;
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      );
+
+      final userCred = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+
+      final user = userCred.user!;
+      final uid = user.uid;
+
+      final doc = await firebase.collection('moms_kitchens').doc(uid).get();
+
+      if (!doc.exists) {
+        await firebase.collection('moms_kitchens').doc(uid).set({
+          "uid": uid,
+          "createdAt": DateTime.now(),
+          "email": user.email,
+          "ownerName": user.displayName ?? "",
+          "name": "",
+          "phone": user.phoneNumber ?? "",
+          "profileImage": user.photoURL ?? "",
+          "wallet_balance": 0,
+          "lifetime_earnings": 0,
+          "rating": 5,
+          "totalOrders": 0,
+          "isVeg": "",
+          "locationName": "",
+          "description": "",
+          "push_token": "",
+        });
+      }
+
+      Get.offAll(() => HomeScreen());
+    } catch (e) {
+      log("Google sign in error: $e");
+      Get.snackbar("Error", "Google sign in failed");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void logout() {
     try {
       auth.signOut();
@@ -177,11 +231,26 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> updateProfile(String id) async {
+  Future<void> updateProfile() async {
+    log("updateProfile start ${FirebaseAuth.instance.currentUser?.uid}");
     try {
-      await firebase.collection('moms_kitchen').doc().update({});
+      await firebase
+          .collection('moms_kitchens')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .update({
+            "phone": phoneNumberController.text,
+            "description": aboutCooking.text.trim(),
+            "locationName": kitchenAddressController.text.trim(),
+            "name": kitchenNameController.text.trim(),
+            "ownerName": fullNameController.text.trim(),
+          });
+
+      log("updateProfile edit");
+
+      getUserData();
+      Get.snackbar('Success', 'Profile Updated');
     } catch (e) {
-      log(e.toString());
+      log('updateProfile exception: $e');
     }
   }
 

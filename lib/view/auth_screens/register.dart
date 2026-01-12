@@ -168,6 +168,34 @@ class RegisterScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Divider(thickness: 2, color: Colors.blueGrey),
+                  Text('Or', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Divider(),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  ac.signinWithGoogle();
+                },
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+
+                    children: [
+                      Image.asset(
+                        'assets/images/google_2.jpg',
+                        height: 50,
+                        width: 50,
+                      ),
+                      Text('Sign up with Google'),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
-import 'package:partner_foodbnb/view/auth_screens/login.dart';
+
 
 class ForgetPassword extends StatelessWidget {
   ForgetPassword({super.key});
@@ -107,7 +107,7 @@ class ForgetPassword extends StatelessWidget {
     );
   }
 
-  // ---------------- HELPERS ----------------
+  
 
   static Widget _label(String text) {
     return Padding(

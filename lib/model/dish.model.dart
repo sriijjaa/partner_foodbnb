@@ -11,7 +11,7 @@ class FoodItemModel {
   final int qntAvailable;
   final String restaurantId;
 
-  const FoodItemModel({
+  const FoodItemModel(   {
     required this.id,
     required this.category,
     required this.createdAt,

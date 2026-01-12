@@ -31,7 +31,7 @@ class DishMenuController extends GetxController {
     isLoading.value = true;
 
     try {
-      // 'Dish' collection data sending to db
+      // 'Dish' collection data create/add to db
       await FirebaseFirestore.instance.collection('Dish').add({
         'name': dishnameController.text.trim(),
         'description': dishDescription.text.trim(),

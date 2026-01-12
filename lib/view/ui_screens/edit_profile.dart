@@ -169,6 +169,13 @@ class EditProfile extends StatelessWidget {
                           ),
                         ),
                       ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          ac.updateProfile();
+                        },
+                        child: Text('Edit Profile'),
+                      ),
                     ],
                   ),
                 ),

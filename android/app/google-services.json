@@ -12,7 +12,20 @@
           "package_name": "com.example.foodbnb_partnerapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "918264432794-g1nc0998vm62bkil4hq77tne4i8is7ol.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.foodbnb_partnerapp",
+            "certificate_hash": "2f44db1178ec69396b8ce30b5f8348fe8a6dbae5"
+          }
+        },
+        {
+          "client_id": "918264432794-c0nhi2ie5h1ug7pnt508u9neutp56lsc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBw5-7dkBqbmSbceEdOcudQdfIHLl8-Ssg"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "918264432794-c0nhi2ie5h1ug7pnt508u9neutp56lsc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -31,7 +49,20 @@
           "package_name": "com.example.partner_foodbnb"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "918264432794-j04447orvbju5cv4426kdtf54sufbj9g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.partner_foodbnb",
+            "certificate_hash": "2f44db1178ec69396b8ce30b5f8348fe8a6dbae5"
+          }
+        },
+        {
+          "client_id": "918264432794-c0nhi2ie5h1ug7pnt508u9neutp56lsc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBw5-7dkBqbmSbceEdOcudQdfIHLl8-Ssg"
@@ -39,7 +70,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "918264432794-c0nhi2ie5h1ug7pnt508u9neutp56lsc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
