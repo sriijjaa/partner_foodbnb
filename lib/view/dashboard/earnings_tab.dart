@@ -1,57 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class EarningsScreen extends StatelessWidget {
-//   const EarningsScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SafeArea(
-//       child: Padding(
-//         padding: const EdgeInsets.all(20),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             const Text(
-//               "Earnings",
-//               style: TextStyle(
-//                 fontSize: 24,
-//                 fontWeight: FontWeight.bold,
-//                 color: Colors.white,
-//               ),
-//             ),
-
-//             const SizedBox(height: 20),
-
-//             Container(
-//               padding: const EdgeInsets.all(20),
-//               decoration: BoxDecoration(
-//                 color: const Color(0xFF16251C),
-//                 borderRadius: BorderRadius.circular(16),
-//               ),
-//               child: Column(
-//                 children: const [
-//                   Text(
-//                     "Available Balance",
-//                     style: TextStyle(color: Colors.white54),
-//                   ),
-//                   SizedBox(height: 10),
-//                   Text(
-//                     "₹1,250",
-//                     style: TextStyle(
-//                       fontSize: 30,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.greenAccent,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 
 class EarningsScreen extends StatelessWidget {
@@ -64,7 +10,6 @@ class EarningsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -72,17 +17,15 @@ class EarningsScreen extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            
             const Text(
               'My Earnings',
               style: TextStyle(
-                color: Color(0xFF112117), 
-                fontWeight: FontWeight.bold, 
+                color: Color(0xFF112117),
+                fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
             ),
-            const SizedBox(width:24)                                                                                                                                         ,
-            
+            const SizedBox(width: 24),
           ],
         ),
         bottom: PreferredSize(
@@ -116,8 +59,8 @@ class EarningsScreen extends StatelessWidget {
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05), 
-            blurRadius: 20, 
+            color: Colors.black.withValues(alpha: 2),
+            blurRadius: 20,
             offset: const Offset(0, 4),
           ),
         ],
@@ -129,20 +72,20 @@ class EarningsScreen extends StatelessWidget {
             child: Column(
               children: [
                 const Text(
-                  'AVAILABLE BALANCE', 
+                  'AVAILABLE BALANCE',
                   style: TextStyle(
-                    color: Colors.grey, 
-                    fontSize: 12, 
-                    fontWeight: FontWeight.bold, 
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  '₹1,250.50', 
+                  '₹1,250.50',
                   style: TextStyle(
-                    color: textMain, 
-                    fontSize: 38, 
+                    color: textMain,
+                    fontSize: 38,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -165,10 +108,10 @@ class EarningsScreen extends StatelessWidget {
                         Icon(Icons.payments, color: Colors.white, size: 20),
                         SizedBox(width: 8),
                         Text(
-                          'Get Paid Now', 
+                          'Get Paid Now',
                           style: TextStyle(
-                            color: Colors.white, 
-                            fontSize: 16, 
+                            color: Colors.white,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -184,7 +127,9 @@ class EarningsScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: Colors.grey[50],
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(16),
+              ),
               border: Border(top: BorderSide(color: Colors.grey[100]!)),
             ),
             child: Row(
@@ -198,14 +143,14 @@ class EarningsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Auto-transfer scheduled', 
+                          'Auto-transfer scheduled',
                           style: TextStyle(color: Colors.grey, fontSize: 11),
                         ),
                         Text(
-                          'Friday, Oct 24', 
+                          'Friday, Oct 24',
                           style: TextStyle(
-                            color: textMain, 
-                            fontSize: 14, 
+                            color: textMain,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -216,7 +161,7 @@ class EarningsScreen extends StatelessWidget {
                 const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -250,10 +195,10 @@ class EarningsScreen extends StatelessWidget {
                 Icon(icon, color: primaryRed, size: 18),
                 const SizedBox(width: 6),
                 Text(
-                  label, 
+                  label,
                   style: const TextStyle(
-                    color: Colors.grey, 
-                    fontSize: 10, 
+                    color: Colors.grey,
+                    fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -261,10 +206,10 @@ class EarningsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              value, 
+              value,
               style: TextStyle(
-                color: textMain, 
-                fontSize: 20, 
+                color: textMain,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -280,18 +225,18 @@ class EarningsScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Recent Activity', 
+          'Recent Activity',
           style: TextStyle(
-            color: textMain, 
-            fontSize: 18, 
+            color: textMain,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
-          'See All', 
+          'See All',
           style: TextStyle(
-            color: primaryRed, 
-            fontSize: 14, 
+            color: primaryRed,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -303,16 +248,36 @@ class EarningsScreen extends StatelessWidget {
   Widget _buildActivityList() {
     return Column(
       children: [
-        _activityItem('Vegetable Biryani', 'Oct 20 • Order #402', '₹105.00', 'Paid'),
+        _activityItem(
+          'Vegetable Biryani',
+          'Oct 20 • Order #402',
+          '₹105.00',
+          'Paid',
+        ),
         const SizedBox(height: 12),
-        _activityItem('Chicken Curry Pack', 'Oct 19 • Order #398', '₹85.50', 'Processing'),
+        _activityItem(
+          'Chicken Curry Pack',
+          'Oct 19 • Order #398',
+          '₹85.50',
+          'Processing',
+        ),
         const SizedBox(height: 12),
-        _activityItem('Chocolate Brownies', 'Oct 18 • Order #395', '₹18.00', 'Paid'),
+        _activityItem(
+          'Chocolate Brownies',
+          'Oct 18 • Order #395',
+          '₹18.00',
+          'Paid',
+        ),
       ],
     );
   }
 
-  Widget _activityItem(String title, String subtitle, String price, String status) {
+  Widget _activityItem(
+    String title,
+    String subtitle,
+    String price,
+    String status,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -326,9 +291,10 @@ class EarningsScreen extends StatelessWidget {
           Row(
             children: [
               Container(
-                height: 50, width: 50,
+                height: 50,
+                width: 50,
                 decoration: BoxDecoration(
-                  color: Colors.grey[100], 
+                  color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.fastfood, color: Colors.grey),
@@ -338,10 +304,10 @@ class EarningsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title, 
+                    title,
                     style: TextStyle(
-                      color: textMain, 
-                      fontWeight: FontWeight.bold, 
+                      color: textMain,
+                      fontWeight: FontWeight.bold,
                       fontSize: 15,
                     ),
                   ),
@@ -349,15 +315,23 @@ class EarningsScreen extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        status, 
+                        status,
                         style: TextStyle(
-                          color: status == 'Paid' ? Colors.green : Colors.orange, 
-                          fontSize: 11, 
+                          color: status == 'Paid'
+                              ? Colors.green
+                              : Colors.orange,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const Text(' • ', style: TextStyle(color: Colors.grey)),
-                      Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 11,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -365,10 +339,10 @@ class EarningsScreen extends StatelessWidget {
             ],
           ),
           Text(
-            price, 
+            price,
             style: TextStyle(
-              color: primaryRed, 
-              fontWeight: FontWeight.bold, 
+              color: primaryRed,
+              fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),

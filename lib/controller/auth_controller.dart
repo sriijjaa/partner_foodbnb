@@ -7,7 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:partner_foodbnb/view/auth_screens/login.dart';
 import 'package:partner_foodbnb/view/auth_screens/register.dart';
-import 'package:partner_foodbnb/view/ui_screens/home_screen.dart';
+import 'package:partner_foodbnb/view/screens/home_screen.dart';
 
 class AuthController extends GetxController {
   // for login page
@@ -76,11 +76,13 @@ class AuthController extends GetxController {
   }
 
   Future<void> handleLogin() async {
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      //get.snackbar instead of snackbar in scaffoldMessenger, no mount and earlier navigation method in Getx ,title for showing msg at top of the app and msg to display the msg that we want after the action
-      Get.snackbar("Error", "Please fill in all fields");
-      return;
-    }
+    //get.snackbar instead of snackbar in scaffoldMessenger, no mount and earlier navigation method in Getx ,title for showing msg at top of the app and msg to display the msg that we want after the action
+
+    // if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+    //   Get.snackbar("Error", "Please fill in all fields");
+    //   return;
+    // }
+
     isLoading.value =
         true; // setState(() => isLoading = true); instead we use only the variable then .value to get the value
 
@@ -246,7 +248,7 @@ class AuthController extends GetxController {
     try {
       await auth.signOut();
       await GoogleSignIn().signOut();
-      Get.to(() => Login());
+      Get.off(() => Login());
     } catch (e) {
       log(e.toString());
     }

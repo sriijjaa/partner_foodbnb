@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
@@ -8,7 +9,9 @@ import 'package:partner_foodbnb/controller/order_controller.dart';
 class OrderScreen extends StatelessWidget {
   OrderScreen({super.key});
 
-  final OrderController oc = Get.put(OrderController());
+  final OrderController oc = Get.put(OrderController()); //for orders
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +21,10 @@ class OrderScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: primaryRed,
         elevation: 0,
-        title: const Text(
-          'Kitchen Dashboard',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          "Welcome Back!",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -55,37 +57,39 @@ class OrderScreen extends StatelessWidget {
 
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _dashboardCard(),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  'Recents Orders',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 8),
-            FirestoreListView(
-              shrinkWrap: true,
-              query: FirebaseFirestore.instance
-                  .collection('orders')
-                  .where(
-                    'restaurant_id',
-                    isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _dashboardCard(),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    'Recents Orders',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-              emptyBuilder: (context) =>
-                  Text('No Orders Available'), //when no items to show
-              itemBuilder: (context, doc) {
-                final order = doc.data();
-                order['docId'] = doc.id;
-                return _orderCard(orderData: order);
-              },
-            ),
-          ],
+                ],
+              ),
+              SizedBox(height: 8),
+              FirestoreListView(
+                shrinkWrap: true,
+                query: FirebaseFirestore.instance
+                    .collection('orders')
+                    .where(
+                      'restaurant_id',
+                      isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+                    ),
+                emptyBuilder: (context) =>
+                    Text('No Orders Available'), //when no items to show
+                itemBuilder: (context, doc) {
+                  final order = doc.data();
+                  order['docId'] = doc.id;
+                  return _orderCard(orderData: order);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

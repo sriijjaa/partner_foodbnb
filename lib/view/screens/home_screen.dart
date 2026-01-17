@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/home_controller.dart';
-import 'package:partner_foodbnb/view/nav_screens/earnings_screen.dart';
-import 'package:partner_foodbnb/view/nav_screens/menu_screen.dart';
-import 'package:partner_foodbnb/view/nav_screens/orders_screen.dart';
-import 'package:partner_foodbnb/view/nav_screens/profile_screen.dart';
+import 'package:partner_foodbnb/view/dashboard/earnings_tab.dart';
+import 'package:partner_foodbnb/view/dashboard/menu_tab.dart';
+import 'package:partner_foodbnb/view/dashboard/orders_tab.dart';
+import 'package:partner_foodbnb/view/dashboard/profile_tab.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -32,21 +32,31 @@ class HomeScreen extends StatelessWidget {
             hc.selectedIndex.value = index;
           },
           backgroundColor: Colors.white,
-          indicatorColor: Colors.red.shade400,
-          destinations: const [
+          indicatorColor: Colors.red.shade400.withAlpha(50),
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.receipt_long),
+              icon: Icon(Icons.receipt_long_outlined),
+              selectedIcon: Icon(Icons.receipt_long, color: Colors.red[400]),
               label: 'Orders',
             ),
             NavigationDestination(
               icon: Icon(Icons.menu_book_sharp),
+              selectedIcon: Icon(Icons.menu_book_sharp, color: Colors.red[400]),
               label: 'Menu',
             ),
             NavigationDestination(
               icon: Icon(Icons.account_balance_wallet),
+              selectedIcon: Icon(
+                Icons.account_balance_wallet,
+                color: Colors.red[400],
+              ),
               label: 'Earnings',
             ),
-            NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+            NavigationDestination(
+              icon: Icon(Icons.person),
+              selectedIcon: Icon(Icons.person, color: Colors.red[400]),
+              label: 'Profile',
+            ),
           ],
         ),
       ),

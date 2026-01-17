@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
-import 'package:partner_foodbnb/view/ui_screens/customerhelp_screen.dart';
-import 'package:partner_foodbnb/view/ui_screens/edit_profile.dart';
-import 'package:partner_foodbnb/view/ui_screens/setting_screen.dart';
+import 'package:partner_foodbnb/view/screens/customerhelp_screen.dart';
+import 'package:partner_foodbnb/view/screens/edit_profile.dart';
+import 'package:partner_foodbnb/view/screens/setting_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
@@ -17,19 +17,33 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.red,
-              child: Icon(Icons.person, size: 40, color: Colors.black),
+            SizedBox(height: 50),
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.red,
+                  child: Icon(Icons.person, size: 40, color: Colors.black),
+                ),
+                Positioned(
+                  bottom: -10,
+                  right: -11,
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.camera_alt_sharp),
+                    style: IconButton.styleFrom(shadowColor: Colors.grey),
+                  ),
+                ),
+              ],
             ),
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
             Obx(
               () => Center(
                 child: Text(
                   ac.userData.value['name'] ?? "-",
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -38,24 +52,27 @@ class ProfileScreen extends StatelessWidget {
               () => Center(
                 child: Text(
                   ac.userData.value['ownerName'] ?? "-",
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
 
             const SizedBox(height: 30),
 
-            ListTile(
-              leading: const Icon(Icons.edit, color: Colors.black),
-              title: const Text(
-                "Edit Profile",
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Get.to(() => EditProfile());
-              },
-            ),
+            settingsTile(Icons.book, 'Account', () {
+              Get.to(() => EditProfile());
+            }),
 
+            // ListTile(
+            //   leading: const Icon(Icons.edit, color: Colors.black),
+            //   title: const Text(
+            //     "Edit Profile",
+            //     style: TextStyle(color: Colors.black),
+            //   ),
+            //   onTap: () {
+            //     Get.to(() => EditProfile());
+            //   },
+            // ),
             SizedBox(height: 20),
             ListTile(
               leading: const Icon(Icons.edit, color: Colors.black),
@@ -118,6 +135,35 @@ class ProfileScreen extends StatelessWidget {
                 },
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget settingsTile(IconData icon, String text, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(6),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(color: Colors.red[400]),
+                padding: EdgeInsets.all(2),
+                child: Icon(icon),
+              ),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+            ),
+            SizedBox(width: 10),
           ],
         ),
       ),

@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/view/auth_screens/login.dart';
-import 'package:partner_foodbnb/view/ui_screens/home_screen.dart';
+import 'package:partner_foodbnb/view/screens/home_screen.dart';
 
 class Splashscreen extends StatelessWidget {
   Splashscreen({super.key});
