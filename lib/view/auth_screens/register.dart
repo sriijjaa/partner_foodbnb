@@ -92,24 +92,132 @@ class RegisterScreen extends StatelessWidget {
                 controller: ac.regRestaurantAddress,
               ),
 
+              //food preferences
               const SizedBox(height: 20),
 
+              _label("Food Preference"),
+              DropdownButtonFormField<String>(
+                initialValue: ac.selectedPreference,
+                hint: Text("Select preference"),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  fillColor: Colors.grey.shade100,
+                  filled: true,
+                ),
+                items: [
+                  DropdownMenuItem(value: "Non-veg", child: Text("Non-Veg")),
+                  DropdownMenuItem(value: "Veg", child: Text("Veg")),
+                  DropdownMenuItem(value: "Pure-veg", child: Text("Pure-veg")),
+                ],
+                onChanged: (value) {
+                  ac.selectedPreference = value;
+                },
+              ),
+              //opentime and close time
+              const SizedBox(height: 20),
+              _label("Set Cuisine"),
+              _textField(
+                hint: "Enter Your Cuisine",
+                icon: Icons.room_service,
+                controller: ac.regCuisineController,
+              ),
+
+              const SizedBox(height: 20),
+
+              _label("Specialities"),
+              // Multi-speciality input with chips
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Input field for adding specialities
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _textField(
+                          hint: "Add a speciality",
+                          icon: Icons.folder_special,
+                          controller: ac.regSpecialityController,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () {
+                          if (ac.regSpecialityController.text
+                              .trim()
+                              .isNotEmpty) {
+                            ac.specialitiesList.add(
+                              ac.regSpecialityController.text.trim(),
+                            );
+                            ac.regSpecialityController.clear();
+                          }
+                        },
+                        icon: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: primaryRed,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.add, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Display added specialities as chips
+                  Obx(
+                    () => ac.specialitiesList.isEmpty
+                        ? const Text(
+                            "No specialities added yet",
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          )
+                        : Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: ac.specialitiesList.map((speciality) {
+                              return Chip(
+                                label: Text(speciality),
+                                deleteIcon: const Icon(Icons.close, size: 18),
+                                onDeleted: () {
+                                  ac.specialitiesList.remove(speciality);
+                                },
+                                backgroundColor: primaryRed,
+                                labelStyle: TextStyle(color: primaryRed),
+                              );
+                            }).toList(),
+                          ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              _label("Pan Number"),
+              _textField(
+                hint: "Pan Number",
+                icon: Icons.card_giftcard,
+                controller: ac.regEmailController,
+              ),
+
+              const SizedBox(height: 20),
               _label("Email"),
               _textField(
                 hint: "Enter email",
                 icon: Icons.email_outlined,
                 controller: ac.regEmailController,
               ),
+
               const SizedBox(height: 20),
               _label("Enter Phone"),
               _textField(
                 hint: "Enter your Phone Number",
                 icon: Icons.phone,
-
                 controller: ac.regPhoneController,
               ),
-              const SizedBox(height: 30),
 
+              const SizedBox(height: 30),
               _label("Create Password"),
               _textField(
                 hint: "Create password",

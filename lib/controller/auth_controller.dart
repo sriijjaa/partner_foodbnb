@@ -15,7 +15,6 @@ class AuthController extends GetxController {
   final passwordController = TextEditingController();
 
   // for register page
-
   final nameController = TextEditingController();
   final restaurantNamecontroller = TextEditingController();
   final regEmailController = TextEditingController();
@@ -24,6 +23,12 @@ class AuthController extends GetxController {
   final regRestaurantAddress = TextEditingController();
   final regRestaurantDesController = TextEditingController();
   final regPhoneController = TextEditingController();
+  final regFoodpreferenceController = TextEditingController();
+  String? selectedPreference;
+  final regCuisineController = TextEditingController();
+  final regSpecialityController = TextEditingController(); // Temporary input
+  final RxList<String> specialitiesList =
+      <String>[].obs; // Store multiple specialities
 
   //for forget page
   final TextEditingController forgetEmailController = TextEditingController();
@@ -93,7 +98,7 @@ class AuthController extends GetxController {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      Get.to(() => HomeScreen());
+      Get.offAll(() => HomeScreen());
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Login failed";
       if (e.code == 'user-not-found') {
@@ -137,18 +142,16 @@ class AuthController extends GetxController {
               "deliveryTime": "",
               "description": regRestaurantDesController.text.trim(),
               "featuredDishImage": "",
-              "isVeg": "",
+              "foodPreference": selectedPreference,
               "location": "",
               "priceForOne": '',
               "profileImage": profilePhotoUrl.value,
               'rating': 5,
-              'specialties': '',
+              'specialties': specialitiesList.toList(),
               'totalOrders': 0,
-              "walletBalance": 0,
-              "lifetimeEarnings": 0,
-              'weeklyEarning': 0,
-
-              "pushToken": "",
+              "wallet_balance": 0,
+              "lifetime_earnings": 0,
+              "push_token": "",
               'orderStatus': '',
               "phone": regPhoneController.text,
               "email": regEmailController.text.trim(),
@@ -172,12 +175,12 @@ class AuthController extends GetxController {
               "deliveryTime": "",
               "description": regRestaurantDesController.text.trim(),
               "featuredDishImage": "",
-              "isVeg": "",
+              "foodPreference": selectedPreference,
               "location": "",
               "priceForOne": '',
               "profileImage": profilePhotoUrl.value,
               'rating': 5,
-              'specialties': '',
+              'specialties': specialitiesList.toList(),
               'totalOrders': 0,
               "walletBalance": 0,
               "lifetimeEarnings": 0,
@@ -252,7 +255,6 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
-  //
 
   void logout() async {
     try {
