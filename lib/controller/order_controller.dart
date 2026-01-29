@@ -1,92 +1,56 @@
-import 'dart:async';
 import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:partner_foodbnb/view/dashboard/orders_tab.dart';
+
+
 
 class OrderController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
+
+  // Kitchen online / offline
   RxBool isActive = false.obs;
 
-  //for updating toggle
+  // ---------------- ONLINE / OFFLINE ----------------
+
   Future<void> updateIsActive(bool value) async {
     try {
       await _firestore
           .collection('moms_kitchens')
           .doc(auth.currentUser!.uid)
           .update({"isActive": value});
+
       isActive.value = value;
     } catch (e) {
       log("Update isActive error: $e");
     }
   }
 
-  //for accepting order
-  Future<void> aceptOrder(Map orderData) async {
-    if (!isActive.value) {
-      Get.snackbar(
-        "Kitchen Offline",
-        "Go online to accept orders",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    try {
-      final String docId = orderData['order_id'];
-
-      await _firestore.collection('orders').doc(docId).update({
-        "orderStatus": "accepted",
-        "updatedAt": FieldValue.serverTimestamp(), //use datetime.now
-      });
-    } catch (e) {
-      log("Accept order error: $e");
-    }
-  }
-
-  //for rejecting order
-  Future<void> rejectOrder(Map orderData) async {
-    try {
-      final String docId = orderData['order_id'];
-
-      await _firestore.collection('orders').doc(docId).update({
-        "orderStatus": "rejected",
-        "updatedAt": FieldValue.serverTimestamp(),
-      });
-    } catch (e) {
-      log("Reject order error: $e");
-    }
-  }
-
   void toggleWithConfirmation(bool value) {
     if (!value) {
-      // going offline
       Get.defaultDialog(
         title: "Go Offline?",
-        middleText: "You won’t receive new orders while offline. Are you sure?",
+        middleText: "You won’t receive new orders while offline.",
         textConfirm: "Yes",
         textCancel: "Cancel",
         confirmTextColor: Colors.white,
         buttonColor: Colors.red,
-
         onConfirm: () {
           updateIsActive(false);
           Get.back();
         },
-        onCancel: () {
-          // do nothing → listener keeps state true
-        },
       );
     } else {
-      // going online
       updateIsActive(true);
     }
   }
 
-  //for updating order status
+  // ---------------- FIRESTORE UPDATE (ONLY ONE) ----------------
+
   Future<void> updateOrderStatus({
     required String docId,
     required String status,
@@ -101,19 +65,64 @@ class OrderController extends GetxController {
     }
   }
 
-  //to confirm reject order
-  void confirmReject(String docId) {
+  // ---------------- CONFIRM CANCEL DIALOG ----------------
+
+  void confirmCancel(String docId) {
     Get.defaultDialog(
-      title: "Reject Order?",
-      middleText: "Are you sure you want to reject this order?",
-      textConfirm: "Yes, Reject",
-      textCancel: "Cancel",
+      title: "Cancel Order?",
+      middleText: "Are you sure you want to cancel this order?",
+      textConfirm: "Yes, Cancel",
+      textCancel: "No",
       confirmTextColor: Colors.white,
       buttonColor: Colors.red,
       onConfirm: () {
-        updateOrderStatus(docId: docId, status: "rejected");
+        updateOrderStatus(
+          docId: docId,
+          status: OrderStatus.cancelled,
+        );
         Get.back();
       },
     );
+  }
+
+  // ---------------- ORDER ACTIONS ----------------
+
+  // Pending → Preparing
+  void acceptOrder(String docId) {
+    if (!isActive.value) {
+      Get.snackbar(
+        "Kitchen Offline",
+        "Go online to accept orders",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    updateOrderStatus(
+      docId: docId,
+      status: OrderStatus.preparing,
+    );
+  }
+
+  // Preparing → InTransit
+  void foodPrepared(String docId) {
+    updateOrderStatus(
+      docId: docId,
+      status: OrderStatus.inTransit,
+    );
+  }
+
+  // InTransit → Delivered
+  void markDelivered(String docId) {
+    updateOrderStatus(
+      docId: docId,
+      status: OrderStatus.delivered,
+    );
+  }
+
+  // Any stage → Cancelled (with confirmation)
+  void failedDelivery(String docId) {
+    confirmCancel(docId);
   }
 }

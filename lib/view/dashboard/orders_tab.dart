@@ -257,55 +257,80 @@ class OrderScreen extends StatelessWidget {
             },
           ),
           const SizedBox(height: 16),
+          _orderActions(orderData),
 
           // Buttons
-          Row(
-            children: [
-              Visibility(
-                visible: orderData['orderStatus'] != 'rejected',
-                child: Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      oc.rejectOrder(orderData);
-                    },
-                    child: const Text("Decline"),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Visibility(
-                visible: orderData['orderStatus'] != 'accepted',
-                child: Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      oc.aceptOrder(orderData);
-                    },
-                    child: const Text(
-                      "Accept",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
+
+  Widget _orderActions(Map orderData) {
+    final String status = orderData['orderStatus'];
+    final String docId = orderData['docId'];
+
+    if (status == OrderStatus.delivered || status == OrderStatus.cancelled) {
+      return const SizedBox();
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+            onPressed: () {
+              if (status == OrderStatus.inTransit) {
+                oc.failedDelivery(docId);
+              } else {
+                oc.confirmCancel(docId);
+              }
+            },
+            child: Text(
+              status == OrderStatus.inTransit ? "Failed to Deliver" : "Reject",
+            ),
+          ),
+        ),
+
+        const SizedBox(width: 12),
+
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+            onPressed: () {
+              if (status == OrderStatus.pending) {
+                oc.acceptOrder(docId);
+              } else if (status == OrderStatus.preparing) {
+                oc.foodPrepared(docId);
+              } else if (status == OrderStatus.inTransit) {
+                oc.markDelivered(docId);
+              }
+            },
+            child: Text(
+              status == OrderStatus.pending
+                  ? "Accept"
+                  : status == OrderStatus.preparing
+                  ? "Food Prepared"
+                  : "Marked as Delivered",
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OrderStatus {
+  static const pending = "Pending";
+  static const preparing = "Preparing";
+  static const inTransit = "InTransit";
+  static const delivered = "Delivered";
+  static const cancelled = "Cancelled";
 }
