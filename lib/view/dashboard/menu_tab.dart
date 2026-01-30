@@ -94,7 +94,7 @@ class MenuScreen extends StatelessWidget {
                     itemBuilder: (context, doc) {
                       final dishData = doc.data();
 
-                      // Filter at UI level based on selected category
+                     
                       bool shouldShow = false;
 
                       if (selectedCategory == "All") {
@@ -116,7 +116,7 @@ class MenuScreen extends StatelessWidget {
                         return const SizedBox.shrink();
                       }
 
-                      // Show the item if it matches the filter
+                      // Show item if matches the filter
                       return _buildMenuItem(
                         dishData,
                         surfaceLight,
