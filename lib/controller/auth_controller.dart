@@ -52,6 +52,8 @@ class AuthController extends GetxController {
   final TextEditingController editSpecialityController =
       TextEditingController();
   final RxList<dynamic> editSpecialitiesList = <dynamic>[].obs;
+  final TextEditingController editPanController = TextEditingController();
+  final TextEditingController editEmailController = TextEditingController();
 
   RxBool isLoading = false.obs;
   RxBool isAvailable = true.obs;
@@ -92,6 +94,8 @@ class AuthController extends GetxController {
       isActive.value = userData['isActive'] ?? false;
       editCuisineController.text = userData['cuisine'] ?? '';
       editSpecialitiesList.value = userData['specialties'] ?? [];
+      editPanController.text = userData['panNumber'] ?? '';
+      editEmailController.text = userData['email'] ?? '';
 
       log("Got user data: $userData");
     } catch (e) {
@@ -301,6 +305,8 @@ class AuthController extends GetxController {
             "ownerName": editFullNameController.text.trim(),
             "cuisine": editCuisineController.text.trim(),
             "specialties": editSpecialitiesList.value,
+            'panNumber': editPanController.text.trim(),
+            'email': editEmailController.text.trim(),
           });
 
       log("updateProfile edit");
