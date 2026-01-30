@@ -125,4 +125,25 @@ class OrderController extends GetxController {
   void failedDelivery(String docId) {
     confirmCancel(docId);
   }
+
+//when order paid transaction
+Future<void> createTransaction({
+  required String uid,
+  required double amount,
+}) async {
+  final ref = FirebaseFirestore.instance
+      .collection('transactions')
+      .doc();
+
+  await ref.set({
+    'id': ref.id,
+    'uid': uid,
+    'amount': amount,
+    'type': 'credit',
+    'txn_note': 'order',
+    'time': DateTime.now(),
+  });
+}
+
+
 }
