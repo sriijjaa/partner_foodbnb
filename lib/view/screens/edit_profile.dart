@@ -26,23 +26,37 @@ class EditProfile extends StatelessWidget {
             children: [
               SizedBox(height: 20),
               Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(radius: 40, child: Image.asset('')),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleAvatar(
-                        radius: 16,
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.camera_alt_outlined),
-                          iconSize: 20,
+                child: Obx(() {
+                  final imageUrl = ac.userData['profileImage'];
+
+                  return Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.lightBlue[200],
+                        backgroundImage:
+                            (imageUrl != null && imageUrl.toString().isNotEmpty)
+                            ? NetworkImage(imageUrl)
+                            : null,
+                        child: (imageUrl == null || imageUrl.toString().isEmpty)
+                            ? Icon(Icons.person, size: 40, color: Colors.black)
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 16,
+                          child: IconButton(
+                            onPressed: () {},
+                            icon: Icon(Icons.camera_alt_outlined),
+                            iconSize: 20,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  );
+                }),
               ),
               SizedBox(height: 20),
 
