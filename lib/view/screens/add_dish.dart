@@ -8,8 +8,8 @@ class AddDishScreen extends StatelessWidget {
   AddDishScreen({super.key});
 
   final DishMenuController dmc = Get.put(DishMenuController());
+
   final ImagePicker _imagePicker = ImagePicker();
- 
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -119,18 +119,23 @@ class AddDishScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 30),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(border: OutlineInputBorder()),
-              items: [
-                DropdownMenuItem(value: "", child: Text("")),
-                DropdownMenuItem(value: "Starters", child: Text("Starters")),
-                DropdownMenuItem(value: "Mains", child: Text("Mains")),
-                DropdownMenuItem(value: "Desserts", child: Text("Desserts")),
-              ],
-              onChanged: (value) {
-                dmc.selectedCategory = value;
-              },
+            Obx(
+              () => DropdownButtonFormField<String>(
+                initialValue: dmc.selectedCategory.value.isEmpty
+                    ? null
+                    : dmc.selectedCategory.value,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                items: const [
+                  DropdownMenuItem(value: "Mains", child: Text("Mains")),
+                  DropdownMenuItem(value: "Starters", child: Text("Starters")),
+                  DropdownMenuItem(value: "Desserts", child: Text("Desserts")),
+                ],
+                onChanged: (value) {
+                  dmc.selectedCategory.value = value ?? '';
+                },
+              ),
             ),
+
             const SizedBox(height: 20),
             Text("Quantity Available"),
             Row(

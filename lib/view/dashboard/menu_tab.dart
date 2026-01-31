@@ -22,6 +22,7 @@ class MenuScreen extends StatelessWidget {
   final RxInt selectedCategoryIndex = 0.obs;
 
   final DishMenuController dmc = Get.put(DishMenuController());
+
   @override
   Widget build(BuildContext context) {
     const Color surfaceLight = Color(0xFFF8F8F8);
@@ -175,28 +176,34 @@ class MenuScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          bool isSelected = selectedCategoryIndex.value == index;
-
-          return GestureDetector(
-            onTap: () {
-              selectedCategoryIndex.value = index;
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: isSelected ? primary : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isSelected ? primary : Colors.grey.shade300,
+          return Obx(
+            () => GestureDetector(
+              onTap: () {
+                selectedCategoryIndex.value = index;
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: selectedCategoryIndex.value == index
+                      ? primary
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: selectedCategoryIndex.value == index
+                        ? primary
+                        : Colors.grey.shade300,
+                  ),
                 ),
-              ),
-              child: Text(
-                categories[index],
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.bold,
+                child: Text(
+                  categories[index],
+                  style: TextStyle(
+                    color: selectedCategoryIndex.value == index
+                        ? Colors.white
+                        : Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -287,15 +294,6 @@ class MenuScreen extends StatelessWidget {
               ),
             ),
 
-            // ---------------- TOGGLE (RIGHT) ----------------
-            // Transform.scale(
-            //   scale: 0.8,
-            //   child: Switch(
-            //     value: dish[''],
-            //     activeThumbColor: primary,
-            //     onChanged: (bool value) {},
-            //   ),
-            // ),
             Row(
               children: [
                 Text('Qnt:'),
@@ -306,6 +304,44 @@ class MenuScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    Get.dialog(
+                      AlertDialog(
+                        title: Text('Edit items?'),
+                        actions: [
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.black,
+                            ),
+                            onPressed: () {
+                              Get.back();
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
+                            onPressed: () {
+                              dmc.dishnameController.text = dish['name'];
+                              dmc.dishDescription.text = dish['description'];
+                              dmc.dishPrice.text = dish['price'].toString();
+                              dmc.selectedCategory.value =
+                                  dish['category'] ?? '';
+                              dmc.currentQuantity.value = dish['qnt_available'];
+                           
+
+                              Get.off(() => AddDishScreen());
+                            },
+                            child: Text('Edit'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.edit),
                 ),
               ],
             ),

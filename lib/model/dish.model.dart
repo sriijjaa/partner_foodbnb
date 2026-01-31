@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FoodItemModel {
-  final String id; 
+  final String id;
   final String category;
   final DateTime createdAt;
   final String description;
@@ -9,9 +9,10 @@ class FoodItemModel {
   final String name;
   final int price;
   final int qntAvailable;
+  final int qntTotal;
   final String restaurantId;
 
-  const FoodItemModel(   {
+  const FoodItemModel({
     required this.id,
     required this.category,
     required this.createdAt,
@@ -20,9 +21,9 @@ class FoodItemModel {
     required this.name,
     required this.price,
     required this.qntAvailable,
+    required this.qntTotal,
     required this.restaurantId,
   });
-
 
   factory FoodItemModel.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> doc,
@@ -37,12 +38,12 @@ class FoodItemModel {
       image: List<String>.from(data['image'] ?? []),
       name: data['name'] ?? '',
       price: data['price'] ?? 0,
-      qntAvailable: data['qnt_available'] ?? 0,
+      qntAvailable: data['qnt_available'] ?? data['qnt_total'] ?? 0,
+      qntTotal: data['qnt_total'] ?? 0,
       restaurantId: data['restaurant_id'] ?? '',
     );
   }
 
-  
   Map<String, dynamic> toFirestore() {
     return {
       'category': category,
@@ -52,6 +53,7 @@ class FoodItemModel {
       'name': name,
       'price': price,
       'qnt_available': qntAvailable,
+      'qnt_total': qntTotal,
       'restaurant_id': restaurantId,
     };
   }
@@ -65,6 +67,7 @@ class FoodItemModel {
     String? name,
     int? price,
     int? qntAvailable,
+    int? qntTotal,
     String? restaurantId,
   }) {
     return FoodItemModel(
@@ -76,6 +79,7 @@ class FoodItemModel {
       name: name ?? this.name,
       price: price ?? this.price,
       qntAvailable: qntAvailable ?? this.qntAvailable,
+      qntTotal: qntTotal ?? this.qntTotal,
       restaurantId: restaurantId ?? this.restaurantId,
     );
   }

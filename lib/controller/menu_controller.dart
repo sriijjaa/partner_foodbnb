@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
@@ -5,16 +6,16 @@ import 'package:get/get.dart';
 
 class DishMenuController extends GetxController {
   //for adding new dish
-
   final TextEditingController dishnameController = TextEditingController();
   final TextEditingController dishDescription = TextEditingController();
   final TextEditingController dishPrice = TextEditingController();
   final TextEditingController dishQntAvailable = TextEditingController();
 
-  String? selectedCategory;
+  RxString selectedCategory = ''.obs;
   Rx isLoading = false.obs;
   RxInt currentQuantity = 0.obs; // for button
   RxString selectedImagePath = ''.obs; //image for dish
+
   //for menuscreen searchbar
   final TextEditingController searchbar = TextEditingController();
   final RxInt selectedCategoryIndex = 0.obs;
@@ -22,7 +23,7 @@ class DishMenuController extends GetxController {
   Future<void> saveDish() async {
     if (dishnameController.text.isEmpty ||
         dishPrice.text.isEmpty ||
-        selectedCategory == null) {
+        selectedCategory.value.isEmpty) {
       Get.snackbar('Error', 'Please fill all required fields');
       return;
     }
@@ -30,14 +31,17 @@ class DishMenuController extends GetxController {
     isLoading.value = true;
 
     try {
+      //id for dish
+
       // 'Dish' collection data create/add to db
       await FirebaseFirestore.instance.collection('Dish').add({
         'name': dishnameController.text.trim(),
         'description': dishDescription.text.trim(),
         'price': int.parse(dishPrice.text.trim()),
-        'category': selectedCategory,
+        'category': selectedCategory.value,
         'created_at': DateTime.now(),
         "qnt_available": currentQuantity.value,
+        'qnt_total': currentQuantity.value,
         "restaurant_id": FirebaseAuth.instance.currentUser?.uid,
         "image": [],
       });
@@ -60,8 +64,25 @@ class DishMenuController extends GetxController {
     dishDescription.clear();
     dishPrice.clear();
     dishQntAvailable.clear();
-    selectedCategory = null;
+    selectedCategory.value = '';
+
     currentQuantity.value = 0;
     selectedImagePath.value = '';
+  }
+
+  Future<void> updateDish() async {
+    try {
+      await FirebaseFirestore.instance.collection('Dish').doc().update({
+        'name': dishnameController.text.trim(),
+        'description': dishDescription.text.trim(),
+        'price': int.parse(dishPrice.text.trim()),
+        'category': selectedCategory.value,
+        "qnt_available": currentQuantity.value,
+        "image": [],
+      });
+      Get.snackbar('success', 'Dish Edited');
+    } catch (e) {
+      log('Update Exceptions: $e');
+    }
   }
 }
