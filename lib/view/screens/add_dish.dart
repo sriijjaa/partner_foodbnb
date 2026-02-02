@@ -87,7 +87,9 @@ class AddDishScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
                 hintText: 'Enter dish Name',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
             SizedBox(height: 30),
@@ -100,7 +102,9 @@ class AddDishScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
                 hintText: 'Short Description',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               maxLines: 3,
             ),
@@ -116,6 +120,7 @@ class AddDishScreen extends StatelessWidget {
                 ),
                 hintText: 'Enter Price',
                 border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(color: Colors.red),
                 ),
               ),
@@ -126,7 +131,11 @@ class AddDishScreen extends StatelessWidget {
                 initialValue: dmc.selectedCategory.value.isEmpty
                     ? null
                     : dmc.selectedCategory.value,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 items: const [
                   DropdownMenuItem(value: "Mains", child: Text("Mains")),
                   DropdownMenuItem(value: "Starters", child: Text("Starters")),
@@ -149,16 +158,24 @@ class AddDishScreen extends StatelessWidget {
                     }
                   },
                   child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.red[400],
+                    ),
                     width: 45,
                     height: 45,
-                    color: Colors.red[400],
+
                     child: Icon(Icons.remove, color: Colors.white),
                   ),
                 ),
                 Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.grey[200],
+                  ),
                   width: 45,
                   height: 45,
-                  color: Colors.grey[200],
+
                   alignment: Alignment.center,
                   child: Obx(
                     () => Text(
@@ -172,9 +189,13 @@ class AddDishScreen extends StatelessWidget {
                     dmc.currentQuantity.value++;
                   },
                   child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.red[400],
+                    ),
                     width: 45,
                     height: 45,
-                    color: Colors.red[400],
+
                     child: Icon(Icons.add, color: Colors.white),
                   ),
                 ),
@@ -229,8 +250,6 @@ class AddDishScreen extends StatelessWidget {
                     dmc.saveDish();
                   } else {
                     dmc.updateDish(dishId);
-                    
-
                   }
                 }
               },
