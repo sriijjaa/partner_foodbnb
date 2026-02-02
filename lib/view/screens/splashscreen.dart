@@ -39,11 +39,12 @@ class Splashscreen extends StatelessWidget {
                 colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
               ),
             ),
-            Lottie.network(
-              width: double.infinity,
+            // Lottie.network(
+            //   width: double.infinity,
 
-              'https://lottie.host/5cf55ee1-e42e-4c1a-a7cb-abb7e6d665ff/1QCvKfU8FJ.json',
-            ),
+            //   'https://lottie.host/5cf55ee1-e42e-4c1a-a7cb-abb7e6d665ff/1QCvKfU8FJ.json',
+            // ),
+            Lottie.asset('assets/videos/Cooking.json'),
 
             SizedBox(height: 4),
 
