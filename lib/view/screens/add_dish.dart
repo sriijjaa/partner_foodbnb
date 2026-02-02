@@ -8,6 +8,8 @@ class AddDishScreen extends StatelessWidget {
   AddDishScreen({super.key});
 
   final DishMenuController dmc = Get.put(DishMenuController());
+  final bool isNew = Get.arguments[0]; // to get value from earlier screen
+  final String dishId = Get.arguments[1];
 
   final ImagePicker _imagePicker = ImagePicker();
 
@@ -219,7 +221,19 @@ class AddDishScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: dmc.isLoading.value ? null : dmc.saveDish,
+              onPressed: () {
+                if (dmc.isLoading.value) {
+                  return;
+                } else {
+                  if (isNew) {
+                    dmc.saveDish();
+                  } else {
+                    dmc.updateDish(dishId);
+                    
+
+                  }
+                }
+              },
               child: dmc.isLoading.value
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text(

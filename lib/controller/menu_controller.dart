@@ -32,10 +32,11 @@ class DishMenuController extends GetxController {
 
     try {
       //id for dish
-
+      final String id = DateTime.now().microsecondsSinceEpoch.toString();
       // 'Dish' collection data create/add to db
-      await FirebaseFirestore.instance.collection('Dish').add({
+      await FirebaseFirestore.instance.collection('dish').doc(id).set({
         'name': dishnameController.text.trim(),
+        'dish_id': id,
         'description': dishDescription.text.trim(),
         'price': int.parse(dishPrice.text.trim()),
         'category': selectedCategory.value,
@@ -70,17 +71,24 @@ class DishMenuController extends GetxController {
     selectedImagePath.value = '';
   }
 
-  Future<void> updateDish() async {
+  Future<void> updateDish(String id) async {
     try {
-      await FirebaseFirestore.instance.collection('Dish').doc().update({
-        'name': dishnameController.text.trim(),
-        'description': dishDescription.text.trim(),
-        'price': int.parse(dishPrice.text.trim()),
-        'category': selectedCategory.value,
-        "qnt_available": currentQuantity.value,
-        "image": [],
-      });
-      Get.snackbar('success', 'Dish Edited');
+      await FirebaseFirestore.instance
+          .collection('dish')
+          .doc(id)
+          .update({
+            'dish_id': id,
+            'name': dishnameController.text.trim(),
+            'description': dishDescription.text.trim(),
+            'price': int.parse(dishPrice.text.trim()),
+            'category': selectedCategory.value,
+            "qnt_available": currentQuantity.value,
+            "image": [],
+          })
+          .then((_) {
+            Get.back();
+            Get.snackbar('success', 'Dish Edited');
+          });
     } catch (e) {
       log('Update Exceptions: $e');
     }

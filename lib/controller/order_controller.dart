@@ -65,7 +65,7 @@ class OrderController extends GetxController {
     }
   }
 
-  // ---------------- CONFIRM CANCEL DIALOG ----------------
+
 
   void confirmCancel(String docId) {
     Get.defaultDialog(

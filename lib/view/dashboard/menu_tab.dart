@@ -53,7 +53,10 @@ class MenuScreen extends StatelessWidget {
                   const SizedBox(width: 4),
                   TextButton(
                     onPressed: () {
-                      Get.to(() => AddDishScreen());
+                      Get.to(
+                        () => AddDishScreen(),
+                        arguments: [true, ''],
+                      ); // argument for adding new dishes
                     },
                     child: Text(
                       'ADD DISH',
@@ -85,7 +88,7 @@ class MenuScreen extends StatelessWidget {
 
                   return FirestoreListView<Map<String, dynamic>>(
                     query: FirebaseFirestore.instance
-                        .collection('Dish')
+                        .collection('dish')
                         .where(
                           'restaurant_id',
                           isEqualTo: FirebaseAuth.instance.currentUser?.uid,
@@ -307,39 +310,16 @@ class MenuScreen extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    Get.dialog(
-                      AlertDialog(
-                        title: Text('Edit items?'),
-                        actions: [
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.black,
-                            ),
-                            onPressed: () {
-                              Get.back();
-                            },
-                            child: Text('Cancel'),
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.red,
-                            ),
-                            onPressed: () {
-                              dmc.dishnameController.text = dish['name'];
-                              dmc.dishDescription.text = dish['description'];
-                              dmc.dishPrice.text = dish['price'].toString();
-                              dmc.selectedCategory.value =
-                                  dish['category'] ?? '';
-                              dmc.currentQuantity.value = dish['qnt_available'];
-                           
+                    dmc.dishnameController.text = dish['name'];
+                    dmc.dishDescription.text = dish['description'];
+                    dmc.dishPrice.text = dish['price'].toString();
+                    dmc.selectedCategory.value = dish['category'] ?? '';
+                    dmc.currentQuantity.value = dish['qnt_available'];
 
-                              Get.off(() => AddDishScreen());
-                            },
-                            child: Text('Edit'),
-                          ),
-                        ],
-                      ),
-                    );
+                    Get.to(
+                      () => AddDishScreen(),
+                      arguments: [false, dish['dish_id']],
+                    ); //no new dish added only edited
                   },
                   icon: Icon(Icons.edit),
                 ),
