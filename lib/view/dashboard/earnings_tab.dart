@@ -90,7 +90,10 @@ class EarningsScreen extends StatelessWidget {
                           width: double.infinity,
                           height: 52,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Get.snackbar('Clicked', 'Feature coming Soon');
+                            },
+
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryRed,
                               elevation: 0,
@@ -98,7 +101,7 @@ class EarningsScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(

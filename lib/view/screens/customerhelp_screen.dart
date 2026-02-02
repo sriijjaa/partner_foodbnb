@@ -105,43 +105,41 @@ class CustomerHelpScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            // Recent Tickets
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  "Recent Tickets",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "View All",
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+            // // Recent Tickets
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: const [
+            //     Text(
+            //       "Recent Tickets",
+            //       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            //     ),
+            //     Text(
+            //       "View All",
+            //       style: TextStyle(
+            //         color: Colors.red,
+            //         fontWeight: FontWeight.bold,
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(height: 12),
 
-            const SizedBox(height: 12),
+            // _ticketTile(
+            //   title: "Payout delayed",
+            //   subtitle: "#4022 • Yesterday",
+            //   status: "IN PROGRESS",
+            //   statusColor: Colors.orange,
+            // ),
 
-            _ticketTile(
-              title: "Payout delayed",
-              subtitle: "#4022 • Yesterday",
-              status: "IN PROGRESS",
-              statusColor: Colors.orange,
-            ),
+            // const SizedBox(height: 10),
 
-            const SizedBox(height: 10),
-
-            _ticketTile(
-              title: "Guest cancellation",
-              subtitle: "#3910 • Oct 24",
-              status: "RESOLVED",
-              statusColor: Colors.green,
-            ),
-
-            const SizedBox(height: 30),
+            // _ticketTile(
+            //   title: "Guest cancellation",
+            //   subtitle: "#3910 • Oct 24",
+            //   status: "RESOLVED",
+            //   statusColor: Colors.green,
+            // ),
+            const SizedBox(height: 20),
 
             // Popular Articles
             const Text(
@@ -194,7 +192,17 @@ class CustomerHelpScreen extends StatelessWidget {
             child: Icon(icon, color: Colors.white),
           ),
           const SizedBox(height: 12),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+
+          TextButton(
+            onPressed: () {},
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ),
           const SizedBox(height: 4),
           Text(subtitle, style: TextStyle(color: Colors.grey.shade600)),
         ],
@@ -202,45 +210,45 @@ class CustomerHelpScreen extends StatelessWidget {
     );
   }
 
-  static Widget _ticketTile({
-    required String title,
-    required String subtitle,
-    required String status,
-    required Color statusColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Text(subtitle, style: TextStyle(color: Colors.grey.shade600)),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-            child: Text(
-              status,
-              style: TextStyle(
-                color: statusColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // static Widget _ticketTile({
+  //   required String title,
+  //   required String subtitle,
+  //   required String status,
+  //   required Color statusColor,
+  // }) {
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey.shade100,
+  //       borderRadius: BorderRadius.circular(14),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+  //             const SizedBox(height: 4),
+  //             Text(subtitle, style: TextStyle(color: Colors.grey.shade600)),
+  //           ],
+  //         ),
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  //           decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+  //           child: Text(
+  //             status,
+  //             style: TextStyle(
+  //               color: statusColor,
+  //               fontWeight: FontWeight.bold,
+  //               fontSize: 12,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   static Widget _articleTile(String title) {
     return ListTile(

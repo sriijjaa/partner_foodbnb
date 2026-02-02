@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
+import 'package:partner_foodbnb/controller/theme_controller.dart';
 import 'package:partner_foodbnb/view/screens/customerhelp_screen.dart';
 import 'package:partner_foodbnb/view/screens/edit_profile.dart';
 import 'dart:io';
@@ -13,7 +14,8 @@ class ProfileScreen extends StatelessWidget {
 
   final AuthController ac = Get.put(AuthController());
 
-  RxBool isDarkMode = false.obs;
+  final ThemeController themeController = Get.put(ThemeController());
+
   RxBool isVibration = false.obs;
   RxBool isSound = false.obs;
   RxBool isNotification = false.obs;
@@ -181,7 +183,7 @@ class ProfileScreen extends StatelessWidget {
                   () {},
                 ),
 
-                //darkmod
+                //darkmode
                 settingTile(
                   Icons.dark_mode_rounded,
                   Colors.black,
@@ -189,28 +191,15 @@ class ProfileScreen extends StatelessWidget {
                   'Go Dark.',
                   Obx(
                     () => Switch(
-                      value: isDarkMode.value,
-                      onChanged: (bool value) {
-                        isDarkMode.value = value;
-                        Get.snackbar(
-                          'Coming Soon',
-                          'Dark mode feature is under development',
-                          snackPosition: SnackPosition.BOTTOM,
-                        );
-                      },
-                      activeThumbColor: Colors.white, // Thumb color (ON)
-                      activeTrackColor: Colors.black, // Track color (ON)
+                      value: themeController.isDarkMode.value,
+                      onChanged: themeController.toggleTheme,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: Colors.black,
                       inactiveThumbColor: Colors.white,
                       inactiveTrackColor: Colors.grey,
                     ),
                   ),
-                  () {
-                    Get.snackbar(
-                      'Coming Soon',
-                      'Dark mode feature is under development',
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
-                  },
+                  () {},
                 ),
               ],
             ),
@@ -268,6 +257,33 @@ class ProfileScreen extends StatelessWidget {
                   },
                 ),
               ),
+            ),
+            SizedBox(height: 30),
+            Center(
+              child: Text(
+                'Foodbnb Partner APP 1.0',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'PRIVACY POLICY',
+                    style: TextStyle(color: Colors.red[300]),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'TERMS OF SERVICE',
+                    style: TextStyle(color: Colors.red[300]),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

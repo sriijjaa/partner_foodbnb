@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get/get.dart';
+import 'package:partner_foodbnb/controller/theme_controller.dart';
 import 'package:partner_foodbnb/firebase_options.dart';
 import 'package:partner_foodbnb/view/screens/splashscreen.dart';
 
@@ -9,20 +10,30 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MyApp());
+  Get.put(ThemeController());
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final ThemeController themeController = Get.put(ThemeController());
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(scaffoldBackgroundColor: Colors.grey.shade100),
-      home: Splashscreen(),
+    return Obx(
+      () => GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+          theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        themeMode: themeController.isDarkMode.value
+            ? ThemeMode.dark
+            : ThemeMode.light,
+        home: Splashscreen(),
+      ),
     );
   }
 }

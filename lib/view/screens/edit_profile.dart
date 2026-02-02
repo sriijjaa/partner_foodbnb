@@ -459,7 +459,10 @@ class EditProfile extends StatelessWidget {
                                     onPressed: () {
                                       Get.back();
                                     },
-                                    child: Text("Cancel"),
+                                    child: Text(
+                                      "Cancel",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
                                   ),
                                   ElevatedButton(
                                     onPressed: () async {
@@ -467,7 +470,10 @@ class EditProfile extends StatelessWidget {
                                       await ac
                                           .updateProfile(); //calls controller update db
                                     },
-                                    child: Text('Save Changes'),
+                                    child: Text(
+                                      'Save Changes',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   ),
                                 ],
                               ),
