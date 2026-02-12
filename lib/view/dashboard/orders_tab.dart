@@ -35,26 +35,106 @@ class OrderScreen extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: 12),
             child: Obx(() {
-              return Row(
-                children: [
-                  Text(
-                    oc.isActive.value ? "Online" : "Offline",
-                    style: TextStyle(
-                      color: oc.isActive.value ? Colors.green : Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+              final isOnline = oc.isActive.value;
+              return GestureDetector(
+                onTap: () {
+                  oc.toggleWithConfirmation(!isOnline);
+                },
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  width: 95,
+                  height: 36,
+                  padding: EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  Switch(
-                    value: oc.isActive.value,
-                    onChanged: (value) {
-                      oc.toggleWithConfirmation(value);
-                    },
-                    activeThumbColor: Colors.white,
-                    activeTrackColor: Colors.green,
-                    inactiveThumbColor: Colors.white,
-                    inactiveTrackColor: Colors.grey.shade500,
+                  child: Stack(
+                    children: [
+                      // Animated sliding button
+                      AnimatedPositioned(
+                        duration: Duration(milliseconds: 350),
+                        curve: Curves.easeInOutCubic,
+                        left: isOnline ? 59 : 0,
+                        top: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: isOnline
+                                  ? [Color(0xFF4CAF50), Color(0xFF45a049)]
+                                  : [Color(0xFFEF5350), Color(0xFFE53935)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: (isOnline ? Colors.green : Colors.red)
+                                    .withOpacity(0.4),
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Text labels
+                      // Offline text - positioned to the right of red circle
+                      Positioned(
+                        left: 36,
+                        top: 0,
+                        bottom: 0,
+                        child: AnimatedOpacity(
+                          duration: Duration(milliseconds: 200),
+                          opacity: !isOnline ? 1.0 : 0.0,
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Ofline",
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Online text - positioned to the left of green circle
+                      Positioned(
+                        left: 14,
+                        top: 0,
+                        bottom: 0,
+                        child: AnimatedOpacity(
+                          duration: Duration(milliseconds: 200),
+                          opacity: isOnline ? 1.0 : 0.0,
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Online",
+                              style: TextStyle(
+                                color: Colors.green.shade700,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               );
             }),
           ),
@@ -83,7 +163,7 @@ class OrderScreen extends StatelessWidget {
               query: FirebaseFirestore.instance
                   .collection('orders')
                   .where(
-                    'restaurant_id',
+                    'kitchenId', //restaurant_id ---->>  kitchenId
                     isEqualTo: FirebaseAuth.instance.currentUser?.uid,
                   ),
               emptyBuilder: (context) =>
@@ -209,7 +289,7 @@ class OrderScreen extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
+                  color: _getStatusBackgroundColor(orderData['orderStatus']),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -217,7 +297,7 @@ class OrderScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange,
+                    color: _getStatusTextColor(orderData['orderStatus']),
                   ),
                 ),
               ),
@@ -238,7 +318,7 @@ class OrderScreen extends StatelessWidget {
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: Row(
@@ -291,10 +371,101 @@ class OrderScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _orderActions(orderData),
 
+          // Show delivery message if exists
+          Obx(() {
+            // Check in-memory state first for immediate updates, then Firestore
+            final message =
+                oc.deliveryMessages[orderData['docId']] ??
+                orderData['deliveryMessage'];
+            final status = orderData['orderStatus'];
+
+            // Only show message for delivered or cancelled orders
+            if (message == null ||
+                (status != OrderStatus.delivered &&
+                    status != OrderStatus.cancelled)) {
+              return const SizedBox();
+            }
+
+            return Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: message == 'success'
+                    ? Colors.green.shade50
+                    : Colors.red.shade50,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: message == 'success'
+                      ? Colors.green.shade300
+                      : Colors.red.shade300,
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    message == 'success' ? Icons.check_circle : Icons.error,
+                    color: message == 'success' ? Colors.green : Colors.red,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      message == 'success'
+                          ? 'yeaaaa !!😀 food has delivered successfully'
+                          : 'oh no !! ☹️ the food has been failed to delivered',
+                      style: TextStyle(
+                        color: message == 'success'
+                            ? Colors.green.shade800
+                            : Colors.red.shade800,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+
           // Buttons
         ],
       ),
     );
+  }
+
+  Color _getStatusBackgroundColor(String? status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return Colors.blue.shade100;
+      case OrderStatus.preparing:
+        return Colors.orange.shade100;
+      case OrderStatus.inTransit:
+        return Colors.purple.shade100;
+      case OrderStatus.delivered:
+        return Colors.green.shade100;
+      case OrderStatus.cancelled:
+        return Colors.red.shade100;
+      default:
+        return Colors.grey.shade100;
+    }
+  }
+
+  Color _getStatusTextColor(String? status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return Colors.blue.shade700;
+      case OrderStatus.preparing:
+        return Colors.orange.shade700;
+      case OrderStatus.inTransit:
+        return Colors.purple.shade700;
+      case OrderStatus.delivered:
+        return Colors.green.shade700;
+      case OrderStatus.cancelled:
+        return Colors.red.shade700;
+      default:
+        return Colors.grey.shade700;
+    }
   }
 
   Widget _orderActions(Map orderData) {
