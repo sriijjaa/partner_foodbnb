@@ -6,14 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/view/dashboard/orders_tab.dart';
 
-
-
 class OrderController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   // Kitchen online / offline
   RxBool isActive = false.obs;
+
+  // Track delivery messages for each order
+  RxMap<String, String> deliveryMessages = <String, String>{}.obs;
 
   // ---------------- ONLINE / OFFLINE ----------------
 
@@ -65,8 +66,6 @@ class OrderController extends GetxController {
     }
   }
 
-
-
   void confirmCancel(String docId) {
     Get.defaultDialog(
       title: "Cancel Order?",
@@ -75,11 +74,15 @@ class OrderController extends GetxController {
       textCancel: "No",
       confirmTextColor: Colors.white,
       buttonColor: Colors.red,
-      onConfirm: () {
-        updateOrderStatus(
-          docId: docId,
-          status: OrderStatus.cancelled,
-        );
+      onConfirm: () async {
+        // Save failure message to Firestore
+        await _firestore.collection('orders').doc(docId).update({
+          "orderStatus": OrderStatus.cancelled,
+          "updatedAt": FieldValue.serverTimestamp(),
+          "deliveryMessage": "failed",
+        });
+        // Update in-memory state
+        deliveryMessages[docId] = 'failed';
         Get.back();
       },
     );
@@ -99,26 +102,24 @@ class OrderController extends GetxController {
       return;
     }
 
-    updateOrderStatus(
-      docId: docId,
-      status: OrderStatus.preparing,
-    );
+    updateOrderStatus(docId: docId, status: OrderStatus.preparing);
   }
 
   // Preparing → InTransit
   void foodPrepared(String docId) {
-    updateOrderStatus(
-      docId: docId,
-      status: OrderStatus.inTransit,
-    );
+    updateOrderStatus(docId: docId, status: OrderStatus.inTransit);
   }
 
   // InTransit → Delivered
-  void markDelivered(String docId) {
-    updateOrderStatus(
-      docId: docId,
-      status: OrderStatus.delivered,
-    );
+  void markDelivered(String docId) async {
+    // Save success message to Firestore
+    await _firestore.collection('orders').doc(docId).update({
+      "orderStatus": OrderStatus.delivered,
+      "updatedAt": FieldValue.serverTimestamp(),
+      "deliveryMessage": "success",
+    });
+    // Update in-memory state
+    deliveryMessages[docId] = 'success';
   }
 
   // Any stage → Cancelled (with confirmation)
@@ -126,24 +127,20 @@ class OrderController extends GetxController {
     confirmCancel(docId);
   }
 
-//when order paid transaction
-Future<void> createTransaction({
-  required String uid,
-  required double amount,
-}) async {
-  final ref = FirebaseFirestore.instance
-      .collection('transactions')
-      .doc();
+  //when order paid transaction
+  Future<void> createTransaction({
+    required String uid,
+    required double amount,
+  }) async {
+    final ref = FirebaseFirestore.instance.collection('transactions').doc();
 
-  await ref.set({
-    'id': ref.id,
-    'uid': uid,
-    'amount': amount,
-    'type': 'credit',
-    'txn_note': 'order',
-    'time': DateTime.now(),
-  });
-}
-
-
+    await ref.set({
+      'id': ref.id,
+      'uid': uid,
+      'amount': amount,
+      'type': 'credit',
+      'txn_note': 'order',
+      'time': DateTime.now(),
+    });
+  }
 }

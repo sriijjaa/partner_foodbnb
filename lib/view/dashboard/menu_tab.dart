@@ -36,7 +36,7 @@ class MenuScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Menu',
+              'Menu Management',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -45,29 +45,32 @@ class MenuScreen extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Get.to(() => AddDishScreen());
+                Get.to(() => AddDishScreen(), arguments: [true, '']);
               },
-              child: Row(
-                children: [
-                  Icon(Icons.add, color: Colors.white, size: 20),
-                  const SizedBox(width: 4),
-                  TextButton(
-                    onPressed: () {
-                      Get.to(
-                        () => AddDishScreen(),
-                        arguments: [true, ''],
-                      ); // argument for adding new dishes
-                    },
-                    child: Text(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, color: Colors.red[400], size: 18),
+                    const SizedBox(width: 6),
+                    Text(
                       'ADD DISH',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.red[400],
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 13,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

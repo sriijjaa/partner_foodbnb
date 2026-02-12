@@ -435,52 +435,6 @@ class EditProfile extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 15),
-
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[400],
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: () {
-                            Get.dialog(
-                              AlertDialog(
-                                title: Text('Update Profile?'),
-                                content: Text(
-                                  'Do you want to save the changes?',
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadiusGeometry.circular(
-                                    10,
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Get.back();
-                                    },
-                                    child: Text(
-                                      "Cancel",
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      Get.back();
-                                      await ac
-                                          .updateProfile(); //calls controller update db
-                                    },
-                                    child: Text(
-                                      'Save Changes',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          child: Text('Update Profile'),
-                        ),
                       ],
                     ),
                   ),
@@ -535,6 +489,58 @@ class EditProfile extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 15),
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[400],
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                      textStyle: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onPressed: () {
+                      Get.dialog(
+                        AlertDialog(
+                          title: Text('Update Profile?'),
+                          content: Text('Do you want to save the changes?'),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(10),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                Get.back();
+                                await ac
+                                    .updateProfile(); //calls controller update db
+                              },
+                              child: Text(
+                                'Save Changes',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Text('Update Profile'),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
             ],
           ),
         ),
