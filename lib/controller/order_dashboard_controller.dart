@@ -21,8 +21,8 @@ class DashboardController extends GetxController {
   /// ACTIVE + SOLD OUT DISHES
   Future<void> fetchDishCounts() async {
     final snapshot = await firestore
-        .collection('Dish')
-        .where('restaurant_id', isEqualTo: uid)
+        .collection('dish') //Dish -> dish
+        .where('kitchen_id', isEqualTo: uid) //Restaurent_id -> kitchen_id
         .get();
 
     int active = 0;

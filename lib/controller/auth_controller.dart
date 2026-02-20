@@ -92,7 +92,7 @@ class AuthController extends GetxController {
       userData.value = snapshot.data() as Map; //snapshot of each doc as map
 
       editFullNameController.text = userData['ownerName'] ?? '';
-      editKitchenNameController.text = userData['kitcheName'] ?? '';
+      editKitchenNameController.text = userData['kitchenName'] ?? '';
       editAboutCooking.text = userData['description'] ?? '';
       editPhoneNumberController.text = userData['phone'] ?? '';
       editKitchenAddressController.text = userData['kitchenAddress'] ?? '';

@@ -270,7 +270,7 @@ class MenuScreen extends StatelessWidget {
                     style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 17,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -281,11 +281,25 @@ class MenuScreen extends StatelessWidget {
                   Text(
                     dish['description'] ?? "N/A",
                     // if ?? first value is null then it will take second value
-                    style: TextStyle(color: textSec, fontSize: 12),
+                    style: TextStyle(color: textSec, fontSize: 15),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
 
+                  const SizedBox(height: 6),
+
+                  Text(
+                    dish['preference'] ?? "N/A",
+                    style: TextStyle(
+                      color: (dish['preference'] == 'Non-Veg')
+                          ? Colors.red
+                          : Colors.green,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 6),
 
                   Text(
@@ -318,6 +332,10 @@ class MenuScreen extends StatelessWidget {
                     dmc.dishPrice.text = dish['price'].toString();
                     dmc.selectedCategory.value = dish['category'] ?? '';
                     dmc.currentQuantity.value = dish['qnt_available'];
+                    dmc.selectedPreference.value = dish['preference'] ?? '';
+                    dmc.ingredientsList.value = List<String>.from(
+                      dish['ingredients'] ?? [],
+                    );
 
                     Get.to(
                       () => AddDishScreen(),

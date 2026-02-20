@@ -79,7 +79,7 @@ class ProfileScreen extends StatelessWidget {
             Obx(
               () => Center(
                 child: Text(
-                  ac.userData.value['name'] ?? "-",
+                  ac.userData.value['kitchenName'] ?? "-",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),

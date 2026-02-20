@@ -78,10 +78,18 @@ class AddDishScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              "Dish Name",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 8),
             TextField(
               controller: dmc.dishnameController,
               decoration: InputDecoration(
-                labelText: "Dish Name",
                 labelStyle: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
@@ -92,11 +100,19 @@ class AddDishScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
+            const Text(
+              "Description",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 8),
             TextField(
               controller: dmc.dishDescription,
               decoration: InputDecoration(
-                labelText: "Description",
                 labelStyle: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
@@ -108,12 +124,20 @@ class AddDishScreen extends StatelessWidget {
               ),
               maxLines: 3,
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
+            const Text(
+              "Price",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 8),
             TextField(
               keyboardType: TextInputType.number,
               controller: dmc.dishPrice,
               decoration: InputDecoration(
-                labelText: "Price",
                 labelStyle: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
@@ -125,13 +149,23 @@ class AddDishScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
+            const Text(
+              "Category",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 8),
             Obx(
               () => DropdownButtonFormField<String>(
                 initialValue: dmc.selectedCategory.value.isEmpty
                     ? null
                     : dmc.selectedCategory.value,
                 decoration: InputDecoration(
+                  hintText: 'Category',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -147,8 +181,190 @@ class AddDishScreen extends StatelessWidget {
               ),
             ),
 
+            //preference
+            SizedBox(height: 20),
+            const Text(
+              "Preference",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 8),
+            Obx(
+              () => DropdownButtonFormField<String>(
+                initialValue: dmc.selectedPreference.value.isEmpty
+                    ? null
+                    : dmc.selectedPreference.value,
+                decoration: InputDecoration(
+                  labelStyle: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  hintText: 'Select Preference',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                items: const [
+                  DropdownMenuItem(value: "Veg", child: Text("Veg")),
+                  DropdownMenuItem(value: "Non-Veg", child: Text("Non-Veg")),
+                  DropdownMenuItem(value: "Pure-Veg", child: Text("Pure-Veg")),
+                ],
+                onChanged: (value) {
+                  dmc.selectedPreference.value = value ?? '';
+                },
+              ),
+            ),
+
             const SizedBox(height: 20),
-            Text("Quantity Available"),
+
+            // Ingredients
+            const Text(
+              "Ingredients",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: dmc.ingredientInput,
+                    decoration: InputDecoration(
+                      hintText: 'e.g. Tomato, Cheese...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                    ),
+                    onSubmitted: (_) => dmc.addIngredient(),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryRed,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                  ),
+                  onPressed: dmc.addIngredient,
+                  child: const Icon(Icons.add, color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Obx(
+              () => dmc.ingredientsList.isEmpty
+                  ? const SizedBox.shrink()
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: dmc.ingredientsList
+                          .asMap()
+                          .entries
+                          .map(
+                            (e) => Card(
+                              margin: const EdgeInsets.symmetric(vertical: 3),
+                              color: Colors.grey.shade200,
+                              elevation: 1,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+
+                              // height for the card
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 10,
+                                ),
+
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      '• ',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        e.value,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () =>
+                                          dmc.ingredientsList.removeAt(e.key),
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 20,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+            ),
+
+            const SizedBox(height: 20),
+
+            //preparation time
+            const Text(
+              "Preparation Time",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            TextField(
+              controller: dmc.preparationTimeInput,
+              decoration: InputDecoration(
+                labelStyle: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+                hintText: 'Enter Preparation Time',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 8),
+
+            //quantity available
+            const Text(
+              "Quantity Available",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 8),
             Row(
               children: [
                 GestureDetector(

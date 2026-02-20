@@ -11,10 +11,14 @@ class DishMenuController extends GetxController {
   final TextEditingController dishDescription = TextEditingController();
   final TextEditingController dishPrice = TextEditingController();
   final TextEditingController dishQntAvailable = TextEditingController();
+  final TextEditingController ingredientInput = TextEditingController();
+  final TextEditingController preparationTimeInput = TextEditingController();
 
   RxString selectedCategory = ''.obs;
+  RxString selectedPreference = ''.obs;
   Rx isLoading = false.obs;
   RxInt currentQuantity = 0.obs; // for button
+  RxList<String> ingredientsList = <String>[].obs;
   RxString selectedImagePath = ''.obs; //image for dish
 
   //for menuscreen searchbar
@@ -22,6 +26,13 @@ class DishMenuController extends GetxController {
   final RxInt selectedCategoryIndex = 0.obs;
 
   final AuthController ac = Get.put(AuthController());
+
+  void addIngredient() {
+    final val = ingredientInput.text.trim();
+    if (val.isEmpty) return;
+    ingredientsList.add(val);
+    ingredientInput.clear();
+  }
 
   Future<void> saveDish() async {
     if (dishnameController.text.isEmpty ||
@@ -43,12 +54,15 @@ class DishMenuController extends GetxController {
         'description': dishDescription.text.trim(),
         'price': int.parse(dishPrice.text.trim()),
         'category': selectedCategory.value,
+        'preference': selectedPreference.value,
         'created_at': DateTime.now(),
         "qnt_available": currentQuantity.value,
         'qnt_total': currentQuantity.value,
         "kitchen_id": FirebaseAuth.instance.currentUser?.uid,
         "kitchen_name": ac.kitchenNamecontroller.text.trim(),
         "images": [],
+        'ingredients': ingredientsList.toList(),
+        'preparation_time': preparationTimeInput.text.trim(),
       });
       clearDishForm();
       Get.snackbar('Added', 'Dish added Successfully');
@@ -70,9 +84,13 @@ class DishMenuController extends GetxController {
     dishPrice.clear();
     dishQntAvailable.clear();
     selectedCategory.value = '';
+    selectedPreference.value = '';
 
     currentQuantity.value = 0;
     selectedImagePath.value = '';
+    ingredientsList.clear();
+    ingredientInput.clear();
+    preparationTimeInput.clear();
   }
 
   Future<void> updateDish(String id) async {
@@ -82,12 +100,15 @@ class DishMenuController extends GetxController {
           .doc(id)
           .update({
             'dish_id': id,
-            'name': dishnameController.text.trim(),
+            'dish_name': dishnameController.text.trim(),
             'description': dishDescription.text.trim(),
             'price': int.parse(dishPrice.text.trim()),
             'category': selectedCategory.value,
+            'preference': selectedPreference.value,
             "qnt_available": currentQuantity.value,
             "image": [],
+            'ingredients': ingredientsList.toList(),
+            'preparation_time': preparationTimeInput.text.trim(),
           })
           .then((_) {
             Get.back();
