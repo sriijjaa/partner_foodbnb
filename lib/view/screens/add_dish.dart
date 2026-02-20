@@ -450,32 +450,38 @@ class AddDishScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryRed,
-                minimumSize: const Size(double.infinity, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Obx(
+              () => ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryRed,
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
+                onPressed: dmc.isLoading.value
+                    ? null
+                    : () {
+                        if (isNew) {
+                          dmc.saveDish();
+                        } else {
+                          dmc.updateDish(dishId);
+                        }
+                      },
+                child: dmc.isLoading.value
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : const Text(
+                        "Save Dish",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
               ),
-              onPressed: () {
-                if (dmc.isLoading.value) {
-                  return;
-                } else {
-                  if (isNew) {
-                    dmc.saveDish();
-                    Get.snackbar('Success', 'Dish Added Successfully');
-                  } else {
-                    dmc.updateDish(dishId);
-                  }
-                }
-              },
-              child: dmc.isLoading.value
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      "Save Dish",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
             ),
           ],
         ),
