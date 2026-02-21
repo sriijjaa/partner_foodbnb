@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/dish_controller.dart';
+import 'package:partner_foodbnb/widgets/bunny_cdn_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -422,32 +423,90 @@ class AddDishScreen extends StatelessWidget {
               onTap: () {
                 _showImagePickerBottomSheet(context);
               },
-              child: Obx(
-                () => Container(
+              child: Obx(() {
+                final localPath = dmc.selectedImagePath.value;
+                final existingUrl = dmc.existingImageUrl.value;
+
+                Widget imageContent;
+
+                if (localPath.isNotEmpty) {
+                  // ── Newly picked local file ──
+                  imageContent = ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      File(localPath),
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: 140,
+                    ),
+                  );
+                } else if (existingUrl.isNotEmpty) {
+                  // ── Existing CDN image (edit mode) ──
+                  imageContent = Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: BunnyCdnImage(
+                          storageUrl: existingUrl,
+                          width: double.infinity,
+                          height: 140,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      // Tap-to-change overlay
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.edit, color: Colors.white, size: 13),
+                              SizedBox(width: 4),
+                              Text(
+                                'Change',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  // ── No image yet — upload prompt ──
+                  imageContent = const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.image, size: 40, color: Colors.grey),
+                      SizedBox(height: 8),
+                      Text("Upload Dish Image"),
+                    ],
+                  );
+                }
+
+                return Container(
                   height: 140,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: dmc.selectedImagePath.value.isEmpty
-                      ? const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.image, size: 40, color: Colors.grey),
-                            SizedBox(height: 8),
-                            Text("Upload Dish Image"),
-                          ],
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            File(dmc.selectedImagePath.value),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                ),
-              ),
+                  child: imageContent,
+                );
+              }),
             ),
             const SizedBox(height: 30),
             Obx(
