@@ -86,7 +86,7 @@ class DishMenuController extends GetxController {
         "qnt_available": currentQuantity.value,
         'qnt_total': currentQuantity.value,
         "kitchen_id": FirebaseAuth.instance.currentUser?.uid,
-        "kitchen_name": ac.kitchenNamecontroller.text.trim(),
+        "kitchen_name": ac.userData['kitchen_name'] ?? '',
         "images": imageUrl.isNotEmpty ? [imageUrl] : [],
         // 'dish_image': imageUrl,
         'ingredients': ingredientsList.toList(),

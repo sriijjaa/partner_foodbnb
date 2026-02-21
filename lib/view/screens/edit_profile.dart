@@ -28,7 +28,7 @@ class EditProfile extends StatelessWidget {
               SizedBox(height: 20),
               Center(
                 child: Obx(() {
-                  final imageUrl = ac.userData['profileImage'];
+                  final imageUrl = ac.userData['profile_image'];
 
                   return Stack(
                     children: [
@@ -64,7 +64,7 @@ class EditProfile extends StatelessWidget {
               Obx(
                 () => Center(
                   child: Text(
-                    ac.userData.value['kitchenName'] ?? "-",
+                    ac.userData.value['kitchen_name'] ?? "-",
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -73,7 +73,7 @@ class EditProfile extends StatelessWidget {
               Obx(
                 () => Center(
                   child: Text(
-                    ac.userData.value['ownerName'] ?? "-",
+                    ac.userData.value['owner_name'] ?? "-",
                     style: TextStyle(fontSize: 14),
                   ),
                 ),

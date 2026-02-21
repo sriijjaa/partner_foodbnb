@@ -31,7 +31,7 @@ class UserModel {
       email: map['email'] ?? '',
       joinedAt: (map['joined_at'] as Timestamp).toDate(),
       lifetimeEarnings: map['lifetime_earnings'] ?? 0,
-      name: map['name'] ?? '',
+      name: map['name'] ?? '',//why name used
       pushToken: map['push_token'] ?? '',
       kitchenName: map['kitchen_name'] ?? '',
       uid: map['uid'] ?? '',

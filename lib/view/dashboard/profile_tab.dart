@@ -45,8 +45,8 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(height: 50),
             Center(
               child: Obx(() {
-                final imageUrl = ac.userData['profileImage'];
-                log("Profile image: ${ac.userData['profileImage']}");
+                final imageUrl = ac.userData['profile_image'];
+                log("Profile image: ${ac.userData['profile_image']}");
 
                 return Stack(
                   children: [
@@ -79,7 +79,7 @@ class ProfileScreen extends StatelessWidget {
             Obx(
               () => Center(
                 child: Text(
-                  ac.userData.value['kitchenName'] ?? "-",
+                  ac.userData['kitchen_name'] ?? "-",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -88,7 +88,7 @@ class ProfileScreen extends StatelessWidget {
             Obx(
               () => Center(
                 child: Text(
-                  ac.userData.value['ownerName'] ?? "-",
+                  ac.userData['owner_name'] ?? "-",
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ),
