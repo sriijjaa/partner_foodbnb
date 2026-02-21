@@ -26,34 +26,33 @@ class BunnyCdnService {
   static const String _dishImagePath = 'images/dish_image/';
   static const String _profilesPath = 'images/profiles/';
 
+  // ─── Pull zone URL (public CDN URL for displaying images) ──────────────────
+  // BunnyCDN panel → Pull Zones → your zone linked to foodbnb-images storage
+  // Typically: https://<your-pull-zone-name>.b-cdn.net
+  static const String _pullZoneUrl = 'https://foodbnb-images.b-cdn.net';
+
   // ─── Singleton setup ───────────────────────────────────────────────────────
   BunnyCdnService._();
   static final BunnyCdnService instance = BunnyCdnService._();
 
   // ─── Upload helpers ────────────────────────────────────────────────────────
 
-  /// Uploads a dish image and returns its direct storage URL.
+  /// Uploads a dish image and returns its public CDN (pull zone) URL.
   Future<String> uploadDishImage(File file) async {
     final fileName = _uniqueFileName(file);
     final bytes = await file.readAsBytes();
-    final endpoint = await _uploadWithRegionDetect(
-      fileName,
-      bytes,
-      _dishImagePath,
-    );
-    return '$endpoint/$storageZone/$_dishImagePath$fileName';
+    await _uploadWithRegionDetect(fileName, bytes, _dishImagePath);
+    // Return the pull-zone URL (publicly accessible via CDN)
+    return '$_pullZoneUrl/$_dishImagePath$fileName';
   }
 
-  /// Uploads a profile image and returns its direct storage URL.
+  /// Uploads a profile image and returns its public CDN (pull zone) URL.
   Future<String> uploadProfileImage(File file) async {
     final fileName = _uniqueFileName(file);
     final bytes = await file.readAsBytes();
-    final endpoint = await _uploadWithRegionDetect(
-      fileName,
-      bytes,
-      _profilesPath,
-    );
-    return '$endpoint/$storageZone/$_profilesPath$fileName';
+    await _uploadWithRegionDetect(fileName, bytes, _profilesPath);
+    // Return the pull-zone URL (publicly accessible via CDN)
+    return '$_pullZoneUrl/$_profilesPath$fileName';
   }
 
   // ─── Core upload — tries every regional endpoint until one succeeds ────────

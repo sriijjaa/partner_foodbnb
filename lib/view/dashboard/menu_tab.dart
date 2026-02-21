@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/dish_controller.dart';
 import 'package:partner_foodbnb/view/screens/add_dish.dart';
+import 'package:partner_foodbnb/widgets/bunny_cdn_image.dart';
 
 class MenuScreen extends StatelessWidget {
   MenuScreen({super.key});
@@ -421,7 +422,8 @@ class MenuScreen extends StatelessWidget {
     final bool isAvailable = (dish['qnt_available'] ?? 0) > 0;
     final bool isVeg = dish['preference'] != 'Non-Veg';
     final List images = dish['images'] ?? [];
-    final String? imageUrl = images.isNotEmpty ? images[0] : null;
+    // Raw URL from Firebase — BunnyCdnImage handles auth & format internally
+    final String? imageUrl = images.isNotEmpty ? images[0] as String : null;
 
     return Opacity(
       opacity: isAvailable ? 1.0 : 0.55,
@@ -450,17 +452,14 @@ class MenuScreen extends StatelessWidget {
               ),
               child: Stack(
                 children: [
-                  SizedBox(
+                  // ── Dish image (fetched with BunnyCDN API key) ──
+                  BunnyCdnImage(
+                    storageUrl: imageUrl,
                     width: 100,
                     height: 110,
-                    child: imageUrl != null
-                        ? Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                          )
-                        : _imagePlaceholder(),
+                    placeholder: _imagePlaceholder,
                   ),
+
                   // Sold out overlay
                   if (!isAvailable)
                     Container(
@@ -627,6 +626,11 @@ class MenuScreen extends StatelessWidget {
                             dmc.ingredientsList.value = List<String>.from(
                               dish['ingredients'] ?? [],
                             );
+                            // Pass existing image URL so edit screen can show it
+                            final List imgs = dish['images'] ?? [];
+                            dmc.existingImageUrl.value = imgs.isNotEmpty
+                                ? imgs[0] as String
+                                : '';
                             Get.to(
                               () => AddDishScreen(),
                               arguments: [false, dish['dish_id']],

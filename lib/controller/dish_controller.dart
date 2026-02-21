@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
 import 'package:partner_foodbnb/services/bunny_cdn_service.dart';
@@ -22,6 +22,7 @@ class DishMenuController extends GetxController {
   RxInt currentQuantity = 0.obs; // for button
   RxList<String> ingredientsList = <String>[].obs;
   RxString selectedImagePath = ''.obs; //image for dish
+  RxString existingImageUrl = ''.obs; // existing image URL when editing
 
   //for menuscreen searchbar
   final TextEditingController searchbar = TextEditingController();
@@ -93,10 +94,32 @@ class DishMenuController extends GetxController {
         'preparation_time': preparationTimeInput.text.trim(),
       });
       clearDishForm();
-      Get.snackbar('Added', 'Dish added Successfully');
+      Get.snackbar(
+        '🎉 Dish Added!',
+        '"${dishnameController.text.trim()}" has been added to your menu.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF2E7D32),
+        colorText: Colors.white,
+        icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        duration: const Duration(seconds: 2),
+      );
+      // Navigate back after the snackbar has had time to show
+      await Future.delayed(const Duration(seconds: 2));
       Get.back();
     } catch (e) {
-      Get.snackbar('Error', 'Error: ${e.toString()}');
+      Get.snackbar(
+        'Error',
+        'Something went wrong: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFC62828),
+        colorText: Colors.white,
+        icon: const Icon(Icons.error_rounded, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        duration: const Duration(seconds: 4),
+      );
     } finally {
       isLoading.value = false;
     }
@@ -112,6 +135,7 @@ class DishMenuController extends GetxController {
 
     currentQuantity.value = 0;
     selectedImagePath.value = '';
+    existingImageUrl.value = '';
     ingredientsList.clear();
     ingredientInput.clear();
     preparationTimeInput.clear();
@@ -138,8 +162,8 @@ class DishMenuController extends GetxController {
 
       // Only update image fields if a new image was uploaded
       if (imageUrl.isNotEmpty) {
-        updateData['dish_image'] = imageUrl;
-        // updateData['images'] = [imageUrl];
+        // updateData['dish_image'] = imageUrl;
+        updateData['images'] = [imageUrl];
       }
 
       await FirebaseFirestore.instance
@@ -148,11 +172,31 @@ class DishMenuController extends GetxController {
           .update(updateData)
           .then((_) {
             Get.back();
-            Get.snackbar('success', 'Dish Edited');
+            Get.snackbar(
+              '✅ Dish Updated!',
+              'Changes have been saved successfully.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: const Color(0xFF2E7D32),
+              colorText: Colors.white,
+              icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+              margin: const EdgeInsets.all(16),
+              borderRadius: 12,
+              duration: const Duration(seconds: 3),
+            );
           });
     } catch (e) {
       log('Update Exceptions: $e');
-      Get.snackbar('Error', 'Failed to update dish: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to update dish: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFC62828),
+        colorText: Colors.white,
+        icon: const Icon(Icons.error_rounded, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        duration: const Duration(seconds: 4),
+      );
     } finally {
       isLoading.value = false;
     }
