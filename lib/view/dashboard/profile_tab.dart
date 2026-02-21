@@ -8,6 +8,7 @@ import 'package:partner_foodbnb/view/screens/customerhelp_screen.dart';
 import 'package:partner_foodbnb/view/screens/edit_profile.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
@@ -31,6 +32,17 @@ class ProfileScreen extends StatelessWidget {
 
     if (pickedFile != null) {
       localProfileImage.value = File(pickedFile.path);
+    }
+  }
+
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      Get.snackbar(
+        'Error',
+        'Could not launch $url',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
@@ -140,7 +152,7 @@ class ProfileScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                   () {
-                    Get.to(() => CustomerHelpScreen());
+                    _launchURL('https://foodbnb-global.web.app/');
                   },
                 ),
                 //subsctiption
@@ -164,24 +176,24 @@ class ProfileScreen extends StatelessWidget {
                 ),
 
                 //notification
-                settingTile(
-                  Icons.notifications_active,
-                  Colors.orangeAccent,
-                  'Push Notification',
-                  'Receive Order Notification',
-                  Switch(
-                    value: isSound.value,
-                    onChanged: (bool value) {
-                      isSound.value = value;
-                      Get.snackbar(
-                        'Coming Soon',
-                        'Sound feature coming soon',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                    },
-                  ),
-                  () {},
-                ),
+                // settingTile(
+                //   Icons.notifications_active,
+                //   Colors.orangeAccent,
+                //   'Push Notification',
+                //   'Receive Order Notification',
+                //   Switch(
+                //     value: isSound.value,
+                //     onChanged: (bool value) {
+                //       isSound.value = value;
+                //       Get.snackbar(
+                //         'Coming Soon',
+                //         'Sound feature coming soon',
+                //         snackPosition: SnackPosition.BOTTOM,
+                //       );
+                //     },
+                //   ),
+                //   () {},
+                // ),
 
                 //darkmode
                 settingTile(
@@ -270,14 +282,20 @@ class ProfileScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _launchURL('https://foodbnb-global.web.app/privacy-policy');
+                  },
                   child: Text(
                     'PRIVACY POLICY',
                     style: TextStyle(color: Colors.red[300]),
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _launchURL(
+                      'https://foodbnb-global.web.app/terms-conditions',
+                    );
+                  },
                   child: Text(
                     'TERMS OF SERVICE',
                     style: TextStyle(color: Colors.red[300]),

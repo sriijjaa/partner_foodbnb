@@ -3,6 +3,7 @@ import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
+import 'package:partner_foodbnb/view/dashboard/withdraw_page.dart';
 import 'package:intl/intl.dart';
 
 class EarningsScreen extends StatelessWidget {
@@ -13,6 +14,9 @@ class EarningsScreen extends StatelessWidget {
   final Color textMain = const Color(0xFF112117);
 
   final AuthController ac = Get.put(AuthController());
+
+  // Reactive filter: 'weekly' | 'lifetime'
+  final RxString earningFilter = 'weekly'.obs;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,7 +81,7 @@ class EarningsScreen extends StatelessWidget {
                         const SizedBox(height: 10),
                         Obx(
                           () => Text(
-                            ac.userData.value['walletBalance'].toString(),
+                            ac.userData.value['wallet_balance'].toString(),
                             style: TextStyle(
                               color: textMain,
                               fontSize: 38,
@@ -91,7 +95,16 @@ class EarningsScreen extends StatelessWidget {
                           height: 52,
                           child: ElevatedButton(
                             onPressed: () {
-                              Get.snackbar('Clicked', 'Feature coming Soon');
+                              final balance =
+                                  double.tryParse(
+                                    ac.userData.value['wallet_balance']
+                                        .toString(),
+                                  ) ??
+                                  0.0;
+                              Get.to(
+                                () => WithdrawPage(availableBalance: balance),
+                                transition: Transition.rightToLeft,
+                              );
                             },
 
                             style: ElevatedButton.styleFrom(
@@ -144,7 +157,7 @@ class EarningsScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Auto-transfer scheduled',
+                                  'Ajka Tarik',
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 11,
@@ -164,11 +177,6 @@ class EarningsScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const Icon(
-                          Icons.chevron_right,
-                          color: Colors.grey,
-                          size: 20,
-                        ),
                       ],
                     ),
                   ),
@@ -176,10 +184,103 @@ class EarningsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Obx(
-                  () => Expanded(
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ── Earning filter toggle ──────────────────────────────
+                  Obx(
+                    () => Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withAlpha(25),
+                              blurRadius: 5,
+                              spreadRadius: 5,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Toggle chips
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                              child: Row(
+                                children: [
+                                  _filterChip(
+                                    label: 'Weekly',
+                                    selected: earningFilter.value == 'weekly',
+                                    onTap: () => earningFilter.value = 'weekly',
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _filterChip(
+                                    label: 'Lifetime',
+                                    selected: earningFilter.value == 'lifetime',
+                                    onTap: () =>
+                                        earningFilter.value = 'lifetime',
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Stat value
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        earningFilter.value == 'weekly'
+                                            ? Icons.trending_up
+                                            : Icons.all_inclusive,
+                                        color: primaryRed,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        earningFilter.value == 'weekly'
+                                            ? 'THIS WEEK'
+                                            : 'LIFETIME',
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    earningFilter.value == 'weekly'
+                                        ? ac.userData.value['weekly_earning']
+                                                  ?.toString() ??
+                                              '0'
+                                        : ac.userData.value['lifetime_earning']
+                                                  ?.toString() ??
+                                              '0',
+                                    style: TextStyle(
+                                      color: textMain,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+                  Expanded(
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -194,37 +295,14 @@ class EarningsScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: _buildStatBox(
-                        'THIS WEEK',
-                        ac.userData.value['weeklyEarning'].toString(),
-                        Icons.trending_up,
+                        'ORDERS',
+                        ac.userData.value['total_orders'].toString(),
+                        Icons.shopping_bag,
                       ),
                     ),
                   ),
-                ),
-
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withAlpha(25),
-                          blurRadius: 5,
-                          spreadRadius: 5,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: _buildStatBox(
-                      'ORDERS',
-                      ac.userData.value['totalOrders'].toString(),
-                      Icons.shopping_bag,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             const SizedBox(height: 24),
@@ -467,43 +545,67 @@ class EarningsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatBox(String label, String value, IconData icon) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
+  Widget _filterChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!),
+          color: selected ? primaryRed : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: primaryRed, size: 18),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: selected ? Colors.white : Colors.grey[600],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatBox(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: primaryRed, size: 18),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                color: textMain,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
               ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              color: textMain,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
