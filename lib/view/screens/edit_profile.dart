@@ -1,13 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
+import 'package:partner_foodbnb/widgets/bunny_cdn_image.dart';
 
 class EditProfile extends StatelessWidget {
   EditProfile({super.key});
 
   final AuthController ac = Get.put(AuthController());
   final Color primaryRed = Colors.red.shade400;
+  final ImagePicker _imagePicker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(source: source);
+      if (image != null) {
+        ac.selectedProfileImagePath.value = image.path;
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to pick image: $e');
+    }
+  }
+
+  void _showImagePickerBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Choose Profile Photo",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.camera_alt, color: Colors.blue.shade600),
+                ),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  _pickImage(ImageSource.camera);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.image, color: Colors.purple.shade600),
+                ),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  _pickImage(ImageSource.gallery);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +108,7 @@ class EditProfile extends StatelessWidget {
               Center(
                 child: Obx(() {
                   final imageUrl = ac.userData['profile_image'];
+                  final localPath = ac.selectedProfileImagePath.value;
 
                   return Stack(
                     children: [
@@ -53,45 +124,62 @@ class EditProfile extends StatelessWidget {
                           ],
                           border: Border.all(color: Colors.white, width: 3),
                         ),
-                        child: CircleAvatar(
-                          radius: 55,
-                          backgroundColor: Colors.grey[100],
-                          backgroundImage:
-                              (imageUrl != null &&
-                                  imageUrl.toString().isNotEmpty)
-                              ? NetworkImage(imageUrl)
-                              : null,
-                          child:
-                              (imageUrl == null || imageUrl.toString().isEmpty)
-                              ? Icon(
-                                  Icons.person,
-                                  size: 50,
-                                  color: Colors.grey[400],
-                                )
-                              : null,
-                        ),
+                        child: localPath.isNotEmpty
+                            ? CircleAvatar(
+                                radius: 55,
+                                backgroundColor: Colors.grey[100],
+                                backgroundImage: FileImage(File(localPath)),
+                              )
+                            : CircleAvatar(
+                                radius: 55,
+                                backgroundColor: Colors.grey[100],
+                                child:
+                                    (imageUrl != null &&
+                                        imageUrl.toString().isNotEmpty)
+                                    ? ClipOval(
+                                        child: BunnyCdnImage(
+                                          storageUrl: imageUrl.toString(),
+                                          width: 110,
+                                          height: 110,
+                                          fit: BoxFit.cover,
+                                          placeholder: () => Icon(
+                                            Icons.person,
+                                            size: 50,
+                                            color: Colors.grey[400],
+                                          ),
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.person,
+                                        size: 50,
+                                        color: Colors.grey[400],
+                                      ),
+                              ),
                       ),
                       Positioned(
                         bottom: 0,
                         right: 4,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: primaryRed,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(40),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 18,
+                        child: GestureDetector(
+                          onTap: () => _showImagePickerBottomSheet(context),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: primaryRed,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(40),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 18,
+                            ),
                           ),
                         ),
                       ),
@@ -332,20 +420,36 @@ class EditProfile extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: 54,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryRed,
-                    foregroundColor: Colors.white,
-                    elevation: 4,
-                    shadowColor: primaryRed.withAlpha(100),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                child: Obx(
+                  () => ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryRed,
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                      shadowColor: primaryRed.withAlpha(100),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                  ),
-                  onPressed: () => _confirmUpdate(context),
-                  child: const Text(
-                    'Update Profile',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    onPressed: ac.isLoading.value
+                        ? null
+                        : () => _confirmUpdate(context),
+                    child: ac.isLoading.value
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Update Profile',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),

@@ -172,12 +172,12 @@ class MenuScreen extends StatelessWidget {
           ),
         ],
       ),
-      actions: const [
-        Padding(
-          padding: EdgeInsets.only(right: 14),
-          child: Icon(Icons.menu_book_rounded, color: Colors.white, size: 24),
-        ),
-      ],
+      // actions: const [
+      //   Padding(
+      //     padding: EdgeInsets.only(right: 14),
+      //     child: Icon(Icons.menu_book_rounded, color: Colors.white, size: 24),
+      //   ),
+      // ],
     );
   }
 

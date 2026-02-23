@@ -6,6 +6,7 @@ import 'package:partner_foodbnb/controller/auth_controller.dart';
 import 'package:partner_foodbnb/controller/theme_controller.dart';
 import 'package:partner_foodbnb/view/screens/customerhelp_screen.dart';
 import 'package:partner_foodbnb/view/screens/edit_profile.dart';
+import 'package:partner_foodbnb/widgets/bunny_cdn_image.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -65,23 +66,22 @@ class ProfileScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.lightBlue[200],
-                      backgroundImage:
+                      child:
                           (imageUrl != null && imageUrl.toString().isNotEmpty)
-                          ? NetworkImage(imageUrl)
-                          : null,
-                      child: (imageUrl == null || imageUrl.toString().isEmpty)
-                          ? Icon(Icons.person, size: 40, color: Colors.black)
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: -10,
-                      right: -11,
-                      child: IconButton(
-                        icon: Icon(Icons.camera_alt_sharp),
-                        onPressed: () {
-                          // future image picker goes here
-                        },
-                      ),
+                          ? ClipOval(
+                              child: BunnyCdnImage(
+                                storageUrl: imageUrl.toString(),
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                placeholder: () => Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            )
+                          : Icon(Icons.person, size: 40, color: Colors.black),
                     ),
                   ],
                 );

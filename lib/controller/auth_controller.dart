@@ -8,6 +8,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:partner_foodbnb/view/auth_screens/login.dart';
 import 'package:partner_foodbnb/view/auth_screens/register.dart';
 import 'package:partner_foodbnb/view/screens/home_screen.dart';
+import 'package:partner_foodbnb/services/bunny_cdn_service.dart';
+import 'dart:io';
 
 class AuthController extends GetxController {
   // for login page
@@ -61,6 +63,8 @@ class AuthController extends GetxController {
   // Edit profile open and close time
   Rx<TimeOfDay?> editOpenTime = Rx<TimeOfDay?>(null);
   Rx<TimeOfDay?> editCloseTime = Rx<TimeOfDay?>(null);
+
+  RxString selectedProfileImagePath = ''.obs;
 
   RxBool isLoading = false.obs;
   RxBool isAvailable = true.obs;
@@ -318,36 +322,70 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<String> _uploadProfileImage() async {
+    if (selectedProfileImagePath.value.isEmpty) return '';
+
+    try {
+      final url = await BunnyCdnService.instance.uploadProfileImage(
+        File(selectedProfileImagePath.value),
+      );
+      return url;
+    } catch (e) {
+      log('BunnyCDN profile image upload error: $e');
+      Get.snackbar(
+        'Warning',
+        'Profile image upload failed: $e',
+        duration: const Duration(seconds: 6),
+      );
+      return '';
+    }
+  }
+
   Future<void> updateProfile() async {
     log("updateProfile start ${FirebaseAuth.instance.currentUser?.uid}");
+    isLoading.value = true;
     try {
+      // Upload image first (if selected)
+      final String imageUrl = await _uploadProfileImage();
+
+      final Map<String, dynamic> updateData = {
+        "phone": editPhoneNumberController.text,
+        "description": editAboutCooking.text.trim(),
+        "kitchen_address": editKitchenAddressController.text.trim(),
+        "kitchen_name": editKitchenNameController.text.trim(),
+        "owner_name": editFullNameController.text.trim(),
+        "cuisine": editCuisineController.text.trim(),
+        "specialties": editSpecialitiesList.value,
+        'pan_number': editPanController.text.trim(),
+        'email': editEmailController.text.trim(),
+        "open_time": editOpenTime.value != null
+            ? timeToString(editOpenTime.value!)
+            : "",
+        "close_time": editCloseTime.value != null
+            ? timeToString(editCloseTime.value!)
+            : "",
+      };
+
+      // Only update profile_image if a new image was uploaded
+      if (imageUrl.isNotEmpty) {
+        updateData['profile_image'] = imageUrl;
+      }
+
       await firebase
           .collection('moms_kitchens')
           .doc(FirebaseAuth.instance.currentUser?.uid)
-          .update({
-            "phone": editPhoneNumberController.text,
-            "description": editAboutCooking.text.trim(),
-            "kitchen_address": editKitchenAddressController.text.trim(),
-            "kitchen_name": editKitchenNameController.text.trim(),
-            "owner_name": editFullNameController.text.trim(),
-            "cuisine": editCuisineController.text.trim(),
-            "specialties": editSpecialitiesList.value,
-            'pan_number': editPanController.text.trim(),
-            'email': editEmailController.text.trim(),
-            "open_time": editOpenTime.value != null
-                ? timeToString(editOpenTime.value!)
-                : "",
-            "close_time": editCloseTime.value != null
-                ? timeToString(editCloseTime.value!)
-                : "",
-          });
+          .update(updateData);
 
       log("updateProfile edit");
 
+      selectedProfileImagePath.value = ''; // Reset local selection
       getUserData();
       Get.snackbar('Success', 'Profile Updated');
     } catch (e) {
       log('updateProfile exception: $e');
+      Get.snackbar('Error', 'Failed to update profile: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 

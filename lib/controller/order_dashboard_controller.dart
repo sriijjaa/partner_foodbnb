@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:swipe_refresh/swipe_refresh.dart';
 
 class DashboardController extends GetxController {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  final _refreshController = StreamController<SwipeRefreshState>.broadcast();
+  Stream<SwipeRefreshState> get refreshStream => _refreshController.stream;
 
   /// COUNTS
   RxInt activeDishes = 0.obs;
@@ -50,5 +56,22 @@ class DashboardController extends GetxController {
         .get();
 
     totalOrders.value = snapshot.docs.length;
+  }
+
+  Future<void> refreshData() async {
+    _refreshController.add(SwipeRefreshState.loading);
+    try {
+      // Specifically refreshing stats data
+      await Future.wait([fetchDishCounts(), fetchOrderCount()]);
+      _refreshController.add(SwipeRefreshState.hidden);
+    } catch (e) {
+      _refreshController.add(SwipeRefreshState.hidden);
+    }
+  }
+
+  @override
+  void onClose() {
+    _refreshController.close();
+    super.onClose();
   }
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:swipe_refresh/swipe_refresh.dart';
 import 'package:partner_foodbnb/controller/order_controller.dart';
 
 import 'package:partner_foodbnb/controller/auth_controller.dart';
@@ -31,34 +32,33 @@ class OrderScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       appBar: _buildAppBar(),
-      body: SingleChildScrollView(
+      body: SwipeRefresh.material(
+        stateStream: dc.refreshStream,
+        onRefresh: dc.refreshData,
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _dashboardCard(),
-            const SizedBox(height: 28),
-            _sectionHeader('Recent Orders'),
-            const SizedBox(height: 12),
-            FirestoreListView(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              query: FirebaseFirestore.instance
-                  .collection('orders')
-                  .where(
-                    'kitchen_id',
-                    isEqualTo: FirebaseAuth.instance.currentUser?.uid,
-                  ),
-              loadingBuilder: (context) => _buildLoadingState(),
-              emptyBuilder: (context) => _buildEmptyState(),
-              itemBuilder: (context, doc) {
-                final order = doc.data();
-                order['docId'] = doc.id;
-                return _orderCard(orderData: order);
-              },
-            ),
-          ],
-        ),
+        children: [
+          const DashboardStatsCard(),
+          const SizedBox(height: 28),
+          _sectionHeader('Recent Orders'),
+          const SizedBox(height: 12),
+          FirestoreListView(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            query: FirebaseFirestore.instance
+                .collection('orders')
+                .where(
+                  'kitchen_id',
+                  isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+                ),
+            loadingBuilder: (context) => _buildLoadingState(),
+            emptyBuilder: (context) => _buildEmptyState(),
+            itemBuilder: (context, doc) {
+              final order = doc.data();
+              order['docId'] = doc.id;
+              return _orderCard(orderData: order);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -193,144 +193,56 @@ class OrderScreen extends StatelessWidget {
   }
 
   // ─── Dashboard Stats Card ────────────────────────────────────────────────────
-
-  Widget _dashboardCard() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(_kRadius),
-        boxShadow: _kCardShadow,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Obx(
-            () => _statBox(
-              Icons.restaurant_rounded,
-              dc.activeDishes.value.toString(),
-              'Active',
-              const Color(0xFF4CAF50),
-            ),
-          ),
-          _verticalDivider(),
-          Obx(
-            () => _statBox(
-              Icons.receipt_long_rounded,
-              dc.totalOrders.value.toString(),
-              'New',
-              _kPrimary,
-            ),
-          ),
-          _verticalDivider(),
-          Obx(
-            () => _statBox(
-              Icons.remove_circle_rounded,
-              dc.soldOutDishes.value.toString(),
-              'Sold Out',
-              const Color(0xFFFF9800),
-            ),
-          ),
-          _verticalDivider(),
-          Obx(
-            () => _statBox(
-              Icons.currency_rupee_rounded,
-              ac.userData['wallet_balance']?.toString() ?? '0',
-              'Revenue',
-              const Color(0xFF2196F3),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _verticalDivider() {
-    return Container(width: 1, height: 48, color: const Color(0xFFEEEEEE));
-  }
-
-  Widget _statBox(IconData icon, String value, String label, Color color) {
-    return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1A1A2E),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF9E9E9E),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Removed _dashboardCard method and replaced with DashboardStatsCard StatelessWidget below.
 
   // ─── Empty & Loading States ──────────────────────────────────────────────────
 
   Widget _buildEmptyState() {
-    return Container(
-      margin: const EdgeInsets.only(top: 40),
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(_kRadius),
-        boxShadow: _kCardShadow,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: _kPrimary.withOpacity(0.08),
-              shape: BoxShape.circle,
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.only(top: 40),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(_kRadius),
+          boxShadow: _kCardShadow,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: _kPrimary.withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.receipt_long_rounded,
+                size: 48,
+                color: _kPrimary,
+              ),
             ),
-            child: const Icon(
-              Icons.receipt_long_rounded,
-              size: 48,
-              color: _kPrimary,
+            const SizedBox(height: 20),
+            const Text(
+              'No Orders Yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1A1A2E),
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'No Orders Yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1A2E),
+            const SizedBox(height: 8),
+            const Text(
+              'New orders from customers will\nappear here automatically.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF9E9E9E),
+                height: 1.5,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'New orders from customers will\nappear here automatically.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF9E9E9E),
-              height: 1.5,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -500,7 +412,7 @@ class OrderScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item['name'] ?? 'Item',
+                  item['dish_name'] ?? 'Item',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -703,4 +615,116 @@ class order_status {
   static const inTransit = 'InTransit';
   static const delivered = 'Delivered';
   static const cancelled = 'Cancelled';
+}
+
+class DashboardStatsCard extends StatelessWidget {
+  const DashboardStatsCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // GetX controllers
+    final DashboardController dc = Get.find<DashboardController>();
+    final AuthController ac = Get.find<AuthController>();
+
+    // Extracted constants from OrderScreen
+    const kRadius = 16.0;
+    const kPrimary = Color(0xFFEF5350);
+    const kCardShadow = [
+      BoxShadow(
+        color: Color(0x14000000),
+        blurRadius: 12,
+        spreadRadius: 0,
+        offset: Offset(0, 4),
+      ),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(kRadius),
+        boxShadow: kCardShadow,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Obx(
+            () => _statBox(
+              Icons.restaurant_rounded,
+              dc.activeDishes.value.toString(),
+              'Active\nDishes',
+              const Color(0xFF4CAF50),
+            ),
+          ),
+          _verticalDivider(),
+          Obx(
+            () => _statBox(
+              Icons.receipt_long_rounded,
+              dc.totalOrders.value.toString(),
+              '  New\nOrders',
+              kPrimary,
+            ),
+          ),
+          _verticalDivider(),
+          Obx(
+            () => _statBox(
+              Icons.remove_circle_rounded,
+              dc.soldOutDishes.value.toString(),
+              'Sold Out\n Dishes',
+              const Color(0xFFFF9800),
+            ),
+          ),
+          _verticalDivider(),
+          Obx(
+            () => _statBox(
+              Icons.currency_rupee_rounded,
+              ac.userData['wallet_balance']?.toString() ?? '0',
+              '   Total\nRevenue',
+              const Color(0xFF2196F3),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _verticalDivider() {
+    return Container(width: 1, height: 48, color: const Color(0xFFEEEEEE));
+  }
+
+  Widget _statBox(IconData icon, String value, String label, Color color) {
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1A1A2E),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF9E9E9E),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

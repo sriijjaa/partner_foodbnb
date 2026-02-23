@@ -107,17 +107,19 @@ class BunnyCdnImage extends StatelessWidget {
   }
 
   Widget _placeholder() {
-    return placeholder?.call() ??
-        Container(
-          width: width,
-          height: height,
-          color: const Color(0xFFFFF5F5),
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.fastfood_rounded,
-            color: Color(0xFFEF9A9A),
-            size: 34,
-          ),
-        );
+    if (placeholder != null) {
+      return SizedBox(
+        width: width,
+        height: height,
+        child: Center(child: placeholder!.call()),
+      );
+    }
+    return Container(
+      width: width,
+      height: height,
+      color: const Color(0xFFFFF5F5),
+      alignment: Alignment.center,
+      child: const Icon(Icons.image, color: Color(0xFFEF9A9A), size: 34),
+    );
   }
 }

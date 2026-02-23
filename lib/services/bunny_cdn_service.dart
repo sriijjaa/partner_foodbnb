@@ -24,7 +24,7 @@ class BunnyCdnService {
 
   // ─── Folder paths inside the storage zone ──────────────────────────────────
   static const String _dishImagePath = 'images/dish_image/';
-  static const String _profilesPath = 'images/profiles/';
+  static const String _profilesPath = 'images/profile_image/';
 
   // ─── Pull zone URL (public CDN URL for displaying images) ──────────────────
   // BunnyCDN panel → Pull Zones → your zone linked to foodbnb-images storage
