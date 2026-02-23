@@ -66,15 +66,22 @@ class BunnyCdnImage extends StatelessWidget {
       builder: (context, snapshot) {
         // ── Loading ──
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return SizedBox(
-            width: width,
-            height: height,
-            child: const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Color(0xFFEF5350),
+          return Stack(
+            children: [
+              _placeholder(),
+              const Positioned.fill(
+                child: Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFFEF5350),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           );
         }
 

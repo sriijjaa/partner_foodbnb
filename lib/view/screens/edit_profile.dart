@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
-import 'package:partner_foodbnb/view/auth_screens/register.dart';
 
 class EditProfile extends StatelessWidget {
   EditProfile({super.key});
@@ -14,44 +13,85 @@ class EditProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Profile'),
+        title: const Text(
+          'Edit Profile',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.red[400],
+        backgroundColor: primaryRed,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
+      backgroundColor: const Color(0xFFF9F9F9),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20),
+              const SizedBox(height: 32),
+              // --- Profile Image Section ---
               Center(
                 child: Obx(() {
                   final imageUrl = ac.userData['profile_image'];
 
                   return Stack(
                     children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.lightBlue[200],
-                        backgroundImage:
-                            (imageUrl != null && imageUrl.toString().isNotEmpty)
-                            ? NetworkImage(imageUrl)
-                            : null,
-                        child: (imageUrl == null || imageUrl.toString().isEmpty)
-                            ? Icon(Icons.person, size: 40, color: Colors.black)
-                            : null,
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryRed.withAlpha(50),
+                              blurRadius: 15,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                          border: Border.all(color: Colors.white, width: 3),
+                        ),
+                        child: CircleAvatar(
+                          radius: 55,
+                          backgroundColor: Colors.grey[100],
+                          backgroundImage:
+                              (imageUrl != null &&
+                                  imageUrl.toString().isNotEmpty)
+                              ? NetworkImage(imageUrl)
+                              : null,
+                          child:
+                              (imageUrl == null || imageUrl.toString().isEmpty)
+                              ? Icon(
+                                  Icons.person,
+                                  size: 50,
+                                  color: Colors.grey[400],
+                                )
+                              : null,
+                        ),
                       ),
                       Positioned(
                         bottom: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 16,
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.camera_alt_outlined),
-                            iconSize: 20,
+                        right: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: primaryRed,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withAlpha(40),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 18,
                           ),
                         ),
                       ),
@@ -59,13 +99,17 @@ class EditProfile extends StatelessWidget {
                   );
                 }),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               Obx(
                 () => Center(
                   child: Text(
-                    ac.userData.value['kitchen_name'] ?? "-",
-                    style: TextStyle(fontSize: 20),
+                    ac.userData.value['kitchen_name']?.toUpperCase() ?? "-",
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
@@ -74,475 +118,373 @@ class EditProfile extends StatelessWidget {
                 () => Center(
                   child: Text(
                     ac.userData.value['owner_name'] ?? "-",
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.circle, color: Colors.green, size: 14),
-                  SizedBox(width: 6),
-                  Text('Active Kitchen Partner'),
-                ],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(Icons.person),
-                  SizedBox(width: 6),
-                  Text(
-                    'Personal Info',
-                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-                  ),
-                ],
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withAlpha(25),
-                      blurRadius: 5,
-                      spreadRadius: 5,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(20),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Full Name'),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: ac.editFullNameController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text('Kitchen Name (Display Name)'),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: ac.editKitchenNameController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text('About Your Cooking'),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: ac.editAboutCooking,
-                          maxLines: 4, //max we can add 4 lines here
-                          decoration: InputDecoration(
-                            hintText:
-                                "Tell customers a little bit about what makes your food special.......",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        //cuisine
-                        SizedBox(height: 5),
-                        Text("Set Cuisine"),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: ac.editCuisineController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                        //specialities
-                        SizedBox(height: 12),
-                        Text(
-                          "Specialities",
-                          // style: TextStyle(
-                          //   fontSize: 15,
-                          //   fontWeight: FontWeight.w600,
-                          // ),
-                        ),
-                        SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.grey.shade200,
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Input field for adding specialities
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: textField(
-                                      hint: "Add a speciality",
-                                      icon: Icons.folder_special,
-                                      controller: ac.editSpecialityController,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    onPressed: () {
-                                      if (ac.editSpecialityController.text
-                                          .trim()
-                                          .isNotEmpty) {
-                                        ac.editSpecialitiesList.add(
-                                          ac.editSpecialityController.text
-                                              .trim(),
-                                        );
-                                        ac.editSpecialityController.clear();
-                                      }
-                                    },
-                                    icon: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: primaryRed,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              // Display added specialities as chips
-                              Obx(
-                                () => ac.editSpecialitiesList.isEmpty
-                                    ? const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 8,
-                                        ),
-                                        child: Text(
-                                          "No specialities added yet",
-                                          style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 12,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      )
-                                    : Wrap(
-                                        spacing: 8,
-                                        runSpacing: 8,
-                                        children: ac.editSpecialitiesList.map((
-                                          speciality,
-                                        ) {
-                                          return Chip(
-                                            label: Text(speciality),
-                                            deleteIcon: const Icon(
-                                              Icons.close,
-                                              size: 18,
-                                              color: Colors.white,
-                                            ),
-                                            onDeleted: () {
-                                              ac.editSpecialitiesList.remove(
-                                                speciality,
-                                              );
-                                            },
-                                            backgroundColor: primaryRed,
-                                            labelStyle: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 12),
-
-                        //pan card
-                        SizedBox(height: 6),
-                        Text("Pan Number"),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: ac.editPanController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(Icons.call),
-                  SizedBox(width: 6),
-                  Text(
-                    'Contact Details',
-                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+              const SizedBox(height: 12),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
                   ),
-                ],
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withAlpha(25),
-                      blurRadius: 5,
-                      spreadRadius: 5,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(20),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withAlpha(20),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        //for phone number
-                        Text('Phone Number'),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: ac.editPhoneNumberController,
-                          keyboardType: TextInputType.number,
-                          // maxLength: 10,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(
-                              10,
-                            ), // Limits input to 10 characters
-                          ],
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.phone_iphone_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // for thr address
-                        SizedBox(height: 6),
-                        Text('Kitchen Address'),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: ac.editKitchenAddressController,
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            hintText: "Agartala Tripura",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        //this for email
-                        SizedBox(height: 6),
-                        Text('Email'),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: ac.editEmailController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(Icons.event_available_sharp),
-                  SizedBox(width: 6),
-                  Text(
-                    'Availability',
-                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Card(
-                color: Colors.white,
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(20),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // const Text("Accepting Orders"),
-                          // Switch(
-                          //   value: isAvailable,
-                          //   activeThumbColor: Colors.green,
-                          //   onChanged: (value) {
-                          //     setState(() {
-                          //       isAvailable = value;
-                          //     });
-                          //   },
-                          // ),
-                        ],
+                      const Icon(Icons.verified, color: Colors.green, size: 16),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Verified Kitchen Partner',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      Align(
-                        alignment: AlignmentGeometry.bottomLeft,
-                        child: Text('Standard Operating Hours'),
-                      ),
-                      SizedBox(height: 8),
-
-                      AvailabilitySection(),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 15),
-              Center(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red[400],
-                      foregroundColor: Colors.white,
-                      minimumSize: Size(double.infinity, 50),
-                      textStyle: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onPressed: () {
-                      Get.dialog(
-                        AlertDialog(
-                          title: Text('Update Profile?'),
-                          content: Text('Do you want to save the changes?'),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(10),
+              const SizedBox(height: 32),
+
+              // --- Section Header: Personal Info ---
+              _sectionHeader(Icons.person_outline, 'Personal Information'),
+              const SizedBox(height: 12),
+
+              _buildCard([
+                _buildFieldLabel('Full Name'),
+                _buildTextField(
+                  controller: ac.editFullNameController,
+                  icon: Icons.person_outline,
+                  hint: "Enter your full name",
+                ),
+                const SizedBox(height: 20),
+                _buildFieldLabel('Kitchen Name (Display Name)'),
+                _buildTextField(
+                  controller: ac.editKitchenNameController,
+                  icon: Icons.restaurant_menu,
+                  hint: "Enter kitchen name",
+                ),
+                const SizedBox(height: 20),
+                _buildFieldLabel('About Your Cooking'),
+                _buildTextField(
+                  controller: ac.editAboutCooking,
+                  icon: Icons.description_outlined,
+                  hint: "Tell customers what makes your food special...",
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 20),
+                _buildFieldLabel('Cuisine'),
+                _buildTextField(
+                  controller: ac.editCuisineController,
+                  icon: Icons.flatware,
+                  hint: "e.g. Indian, Chinese, Italian",
+                ),
+                const SizedBox(height: 24),
+                _buildFieldLabel("Specialities"),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTextField(
+                              controller: ac.editSpecialityController,
+                              icon: Icons.auto_awesome_outlined,
+                              hint: "Add a speciality",
+                              noPadding: true,
+                            ),
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Get.back();
-                              },
-                              child: Text(
-                                "Cancel",
-                                style: TextStyle(color: Colors.black),
+                          const SizedBox(width: 12),
+                          IconButton(
+                            onPressed: () {
+                              if (ac.editSpecialityController.text
+                                  .trim()
+                                  .isNotEmpty) {
+                                ac.editSpecialitiesList.add(
+                                  ac.editSpecialityController.text.trim(),
+                                );
+                                ac.editSpecialityController.clear();
+                              }
+                            },
+                            icon: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: primaryRed,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 20,
                               ),
                             ),
-                            ElevatedButton(
-                              onPressed: () async {
-                                Get.back();
-                                await ac
-                                    .updateProfile(); //calls controller update db
-                              },
-                              child: Text(
-                                'Save Changes',
-                                style: TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Obx(
+                        () => ac.editSpecialitiesList.isEmpty
+                            ? Text(
+                                "No specialities added yet",
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              )
+                            : Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: ac.editSpecialitiesList.map((
+                                  speciality,
+                                ) {
+                                  return Chip(
+                                    label: Text(speciality),
+                                    deleteIcon: const Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                    onDeleted: () => ac.editSpecialitiesList
+                                        .remove(speciality),
+                                    backgroundColor: primaryRed,
+                                    visualDensity: VisualDensity.compact,
+                                    labelStyle: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: Text('Update Profile'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildFieldLabel('PAN Number'),
+                _buildTextField(
+                  controller: ac.editPanController,
+                  icon: Icons.badge_outlined,
+                  hint: "Enter PAN number",
+                ),
+              ]),
+
+              const SizedBox(height: 32),
+              // --- Section Header: Contact Details ---
+              _sectionHeader(Icons.contact_phone_outlined, 'Contact Details'),
+              const SizedBox(height: 12),
+              _buildCard([
+                _buildFieldLabel('Phone Number'),
+                _buildTextField(
+                  controller: ac.editPhoneNumberController,
+                  icon: Icons.phone_android,
+                  hint: "Enter phone number",
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [LengthLimitingTextInputFormatter(10)],
+                ),
+                const SizedBox(height: 20),
+                _buildFieldLabel('Email Address'),
+                _buildTextField(
+                  controller: ac.editEmailController,
+                  icon: Icons.email_outlined,
+                  hint: "Enter email address",
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 20),
+                _buildFieldLabel('Kitchen Address'),
+                _buildTextField(
+                  controller: ac.editKitchenAddressController,
+                  icon: Icons.location_on_outlined,
+                  hint: "e.g. Agartala, Tripura",
+                  maxLines: 3,
+                ),
+              ]),
+
+              const SizedBox(height: 32),
+              // --- Section Header: Availability ---
+              _sectionHeader(Icons.access_time, 'Availability'),
+              const SizedBox(height: 12),
+              AvailabilitySection(),
+
+              const SizedBox(height: 44),
+              // --- Save Button ---
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryRed,
+                    foregroundColor: Colors.white,
+                    elevation: 4,
+                    shadowColor: primaryRed.withAlpha(100),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: () => _confirmUpdate(context),
+                  child: const Text(
+                    'Update Profile',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 40),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmUpdate(BuildContext context) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        title: const Text('Update Profile?'),
+        content: const Text('Do you want to save the changes to your profile?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryRed,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () async {
+              Get.back();
+              await ac.updateProfile();
+            },
+            child: const Text(
+              'Save Changes',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Helper Widgets ---
+
+  Widget _sectionHeader(IconData icon, String title) {
+    return Row(
+      children: [
+        Icon(icon, color: primaryRed, size: 22),
+        const SizedBox(width: 10),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCard(List<Widget> children) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: primaryRed.withAlpha(30), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildFieldLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required IconData icon,
+    required String hint,
+    int maxLines = 1,
+    bool noPadding = false,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+        prefixIcon: Icon(icon, color: primaryRed.withAlpha(150), size: 20),
+        contentPadding: noPadding
+            ? null
+            : const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        filled: true,
+        fillColor: Colors.grey[50],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[100]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[100]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: primaryRed, width: 1.5),
         ),
       ),
     );
@@ -551,110 +493,91 @@ class EditProfile extends StatelessWidget {
 
 class AvailabilitySection extends StatelessWidget {
   AvailabilitySection({super.key});
-  final AuthController ac = Get.put(AuthController());
+  final AuthController ac = Get.find<AuthController>();
+  final Color primaryRed = Colors.red.shade400;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Accepting Orders",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Switch(
-                  value: ac.isAcceptingOrders.value,
-                  onChanged: (value) {
-                    ac.isAcceptingOrders.value = value;
-                  },
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [Text('Open Time'), Text('Close Time')],
-            ),
-            SizedBox(height: 8),
-
-            Row(
-              children: [
-                timePickerButton(
-                  label: "Open Time",
-                  selectedTime: ac.editOpenTime,
-                ),
-                const SizedBox(width: 12),
-                timePickerButton(
-                  label: "Close Time",
-                  selectedTime: ac.editCloseTime,
-                ),
-              ],
-            ),
-          ],
-        ),
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: primaryRed.withAlpha(30), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+            spreadRadius: 1,
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget timeBox(String time) {
-    return Obx(
-      () => GestureDetector(
-        onTap: () async {
-          // Determine if this is open or close time based on the time value
-          final isOpenTime =
-              ac.editOpenTime.value != null &&
-              time == ac.timeToString(ac.editOpenTime.value!);
-
-          final TimeOfDay? picked = await showTimePicker(
-            context: Get.context!,
-            initialTime: isOpenTime
-                ? (ac.editOpenTime.value ?? TimeOfDay.now())
-                : (ac.editCloseTime.value ?? TimeOfDay.now()),
-          );
-
-          if (picked != null) {
-            if (isOpenTime) {
-              ac.editOpenTime.value = picked;
-            } else {
-              ac.editCloseTime.value = picked;
-            }
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300, width: 1),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Accepting Orders",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "Toggle to open/close your kitchen",
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+              Obx(
+                () => Switch.adaptive(
+                  activeColor: primaryRed,
+                  value: ac.isAcceptingOrders.value,
+                  onChanged: (value) => ac.isAcceptingOrders.value = value,
+                ),
+              ),
+            ],
           ),
-          child: Center(
-            child: Text(
-              time,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+          const SizedBox(height: 24),
+          Text(
+            'Standard Operating Hours'.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              letterSpacing: 0.5,
             ),
           ),
-        ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              TimePickerButton(
+                label: "Open Time",
+                selectedTime: ac.editOpenTime,
+              ),
+              const SizedBox(width: 14),
+              TimePickerButton(
+                label: "Close Time",
+                selectedTime: ac.editCloseTime,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class timePickerButton extends StatelessWidget {
+class TimePickerButton extends StatelessWidget {
   final String label;
   final Rx<TimeOfDay?> selectedTime;
-  final AuthController ac = Get.put(AuthController());
+  final AuthController ac = Get.find<AuthController>();
 
-  timePickerButton({
+  TimePickerButton({
     super.key,
     required this.label,
     required this.selectedTime,
@@ -669,37 +592,63 @@ class timePickerButton extends StatelessWidget {
             final TimeOfDay? picked = await showTimePicker(
               context: context,
               initialTime: selectedTime.value ?? TimeOfDay.now(),
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      primary: Colors.red.shade400,
+                      onPrimary: Colors.white,
+                      onSurface: Colors.black,
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
             );
             if (picked != null) {
               selectedTime.value = picked;
             }
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               color: selectedTime.value != null
-                  ? Colors.grey.shade100
-                  : Colors.grey.shade200,
+                  ? Colors.red[50]
+                  : Colors.grey[50],
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: selectedTime.value != null
                     ? Colors.red.shade400
-                    : Colors.grey.shade300,
-                width: selectedTime.value != null ? 2 : 1,
+                    : Colors.grey.shade200,
+                width: selectedTime.value != null ? 1.5 : 1,
               ),
             ),
-            child: Center(
-              child: Text(
-                selectedTime.value != null
-                    ? ac.timeToString(selectedTime.value!)
-                    : label,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: selectedTime.value != null
-                      ? Colors.black
-                      : Colors.grey.shade600,
+            child: Column(
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: selectedTime.value != null
+                        ? Colors.red.shade400
+                        : Colors.grey[600],
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 4),
+                Text(
+                  selectedTime.value != null
+                      ? ac.timeToString(selectedTime.value!)
+                      : "Set Time",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: selectedTime.value != null
+                        ? Colors.black
+                        : Colors.grey[400],
+                  ),
+                ),
+              ],
             ),
           ),
         ),

@@ -94,7 +94,7 @@ class MenuScreen extends StatelessWidget {
                           _matchCount.value++;
                         });
 
-                        return _buildDishCard(dish);
+                        return _buildDishCard(context, dish);
                       },
                     ),
 
@@ -113,6 +113,22 @@ class MenuScreen extends StatelessWidget {
               }),
             ),
           ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Get.to(() => AddDishScreen(), arguments: [true, '']),
+        backgroundColor: _kPrimary,
+        elevation: 6,
+        highlightElevation: 3,
+        icon: const Icon(Icons.add_rounded, color: Colors.white, size: 26),
+        label: const Text(
+          'Add Dish',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            fontSize: 14,
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );
@@ -156,42 +172,10 @@ class MenuScreen extends StatelessWidget {
           ),
         ],
       ),
-      actions: [
+      actions: const [
         Padding(
-          padding: const EdgeInsets.only(right: 14),
-          child: GestureDetector(
-            onTap: () => Get.to(() => AddDishScreen(), arguments: [true, '']),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x22000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.add_rounded, color: _kPrimary, size: 18),
-                  SizedBox(width: 5),
-                  Text(
-                    'ADD',
-                    style: TextStyle(
-                      color: _kPrimary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          padding: EdgeInsets.only(right: 14),
+          child: Icon(Icons.menu_book_rounded, color: Colors.white, size: 24),
         ),
       ],
     );
@@ -418,7 +402,7 @@ class MenuScreen extends StatelessWidget {
 
   // ── Dish Card ──────────────────────────────────────────────────────────────
 
-  Widget _buildDishCard(Map<String, dynamic> dish) {
+  Widget _buildDishCard(BuildContext context, Map<String, dynamic> dish) {
     final bool isAvailable = (dish['qnt_available'] ?? 0) > 0;
     final bool isVeg = dish['preference'] != 'Non-Veg';
     final List images = dish['images'] ?? [];
@@ -571,30 +555,30 @@ class MenuScreen extends StatelessWidget {
                             fontSize: 16,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         // Qty badge
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
+                            horizontal: 8,
+                            vertical: 3,
                           ),
                           decoration: BoxDecoration(
                             color: isAvailable
                                 ? const Color(0xFFE8F5E9)
                                 : const Color(0xFFFCE4EC),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
                                 Icons.inventory_2_outlined,
-                                size: 12,
+                                size: 10,
                                 color: isAvailable
                                     ? const Color(0xFF2E7D32)
                                     : _kPrimary,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 3),
                               Text(
                                 '${dish['qnt_available'] ?? 0}',
                                 style: TextStyle(
@@ -602,12 +586,13 @@ class MenuScreen extends StatelessWidget {
                                       ? const Color(0xFF2E7D32)
                                       : _kPrimary,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 12,
+                                  fontSize: 10,
                                 ),
                               ),
                             ],
                           ),
                         ),
+                        const Spacer(),
                         // Edit button
                         const SizedBox(width: 6),
                         GestureDetector(
@@ -652,6 +637,26 @@ class MenuScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 6),
+                        // Delete button
+                        GestureDetector(
+                          onTap: () => _confirmDelete(context, dish),
+                          child: Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF5F5),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: const Color(0xFFFFCDD2),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 16,
+                              color: _kPrimary,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -674,6 +679,61 @@ class MenuScreen extends StatelessWidget {
         Icons.fastfood_rounded,
         color: Color(0xFFEF9A9A), // muted rose-red icon
         size: 34,
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, Map<String, dynamic> dish) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        title: Row(
+          children: [
+            const Icon(Icons.delete_forever_rounded, color: _kPrimary),
+            const SizedBox(width: 10),
+            const Text('Delete Dish?'),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to delete "${dish['dish_name']}"? This action cannot be undone.',
+          style: const TextStyle(height: 1.5),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_kRadius),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _kPrimary,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () async {
+              Get.back();
+              await dmc.deleteDish(dish['dish_id']);
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

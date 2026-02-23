@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
 import 'package:partner_foodbnb/view/dashboard/withdraw_page.dart';
 import 'package:intl/intl.dart';
+import 'package:partner_foodbnb/view/screens/transaction_details.dart';
 
 class EarningsScreen extends StatelessWidget {
   EarningsScreen({super.key});
@@ -317,14 +318,20 @@ class EarningsScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  'See All',
-                  style: TextStyle(
-                    color: primaryRed,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                TextButton(
+                  onPressed: () {
+                    Get.to(() => AllTransactionsPage());
+                  },
+                  child: Text(
+                    'See All',
+                    style: TextStyle(
+                      color: primaryRed,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+                //
               ],
             ),
             const SizedBox(height: 12),

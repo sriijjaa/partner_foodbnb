@@ -104,7 +104,7 @@ class AuthController extends GetxController {
 
       // Load open and close times
       if (userData['open_time'] != null && userData['open_time'] != '') {
-        editOpenTime.value = stringToTime(userData['openTime']);
+        editOpenTime.value = stringToTime(userData['open_time']);
       }
       if (userData['close_time'] != null && userData['close_time'] != '') {
         editCloseTime.value = stringToTime(userData['close_time']);

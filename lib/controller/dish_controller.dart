@@ -162,7 +162,6 @@ class DishMenuController extends GetxController {
 
       // Only update image fields if a new image was uploaded
       if (imageUrl.isNotEmpty) {
-        // updateData['dish_image'] = imageUrl;
         updateData['images'] = [imageUrl];
       }
 
@@ -189,6 +188,40 @@ class DishMenuController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to update dish: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFC62828),
+        colorText: Colors.white,
+        icon: const Icon(Icons.error_rounded, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        duration: const Duration(seconds: 4),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> deleteDish(String id) async {
+    try {
+      isLoading.value = true;
+      await FirebaseFirestore.instance.collection('dish').doc(id).delete();
+
+      Get.snackbar(
+        '🗑️ Dish Deleted',
+        'The dish has been removed from your menu.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFC62828),
+        colorText: Colors.white,
+        icon: const Icon(Icons.delete_sweep_rounded, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        duration: const Duration(seconds: 3),
+      );
+    } catch (e) {
+      log('Delete Exception: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to delete dish: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFC62828),
         colorText: Colors.white,

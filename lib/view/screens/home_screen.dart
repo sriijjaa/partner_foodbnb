@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/home_controller.dart';
 import 'package:partner_foodbnb/view/dashboard/earnings_tab.dart';
-import 'package:partner_foodbnb/view/dashboard/menu_tab.dart';
+import 'package:partner_foodbnb/view/dashboard/menu_management_tab.dart';
 import 'package:partner_foodbnb/view/dashboard/orders_tab.dart';
 import 'package:partner_foodbnb/view/dashboard/profile_tab.dart';
 

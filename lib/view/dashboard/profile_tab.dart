@@ -137,7 +137,13 @@ class ProfileScreen extends StatelessWidget {
                     size: 16,
                     color: Colors.white,
                   ),
-                  () {},
+                  () {
+                    Get.snackbar(
+                      'Coming Soon',
+                      'New Feature',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  },
                 ),
                 //support
                 settingTile(
