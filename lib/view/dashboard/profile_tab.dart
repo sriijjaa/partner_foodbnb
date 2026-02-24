@@ -66,22 +66,20 @@ class ProfileScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.lightBlue[200],
-                      child:
-                          (imageUrl != null && imageUrl.toString().isNotEmpty)
-                          ? ClipOval(
-                              child: BunnyCdnImage(
-                                storageUrl: imageUrl.toString(),
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                placeholder: () => Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            )
-                          : Icon(Icons.person, size: 40, color: Colors.black),
+                      child: ClipOval(
+                        child: BunnyCdnImage(
+                          storageUrl:
+                              (imageUrl != null &&
+                                  imageUrl.toString().isNotEmpty)
+                              ? imageUrl.toString()
+                              : ac.auth.currentUser?.photoURL ?? '',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          placeholder: () =>
+                              Icon(Icons.person, size: 40, color: Colors.black),
+                        ),
+                      ),
                     ),
                   ],
                 );

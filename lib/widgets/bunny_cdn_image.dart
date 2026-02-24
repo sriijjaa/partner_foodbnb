@@ -61,6 +61,23 @@ class BunnyCdnImage extends StatelessWidget {
       return _placeholder();
     }
 
+    // If it's a truly external URL (not BunnyCDN storage AND not BunnyCDN pull zone), load it directly
+    if (url.startsWith('http') &&
+        !url.contains('storage.bunnycdn.com') &&
+        !url.contains('b-cdn.net')) {
+      return SizedBox(
+        width: width,
+        height: height,
+        child: Image.network(
+          url,
+          width: width,
+          height: height,
+          fit: fit,
+          errorBuilder: (_, __, ___) => _placeholder(),
+        ),
+      );
+    }
+
     return FutureBuilder<Uint8List>(
       future: controller.fetchImage(url),
       builder: (context, snapshot) {
