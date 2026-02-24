@@ -133,27 +133,23 @@ class EditProfile extends StatelessWidget {
                             : CircleAvatar(
                                 radius: 55,
                                 backgroundColor: Colors.grey[100],
-                                child:
-                                    (imageUrl != null &&
-                                        imageUrl.toString().isNotEmpty)
-                                    ? ClipOval(
-                                        child: BunnyCdnImage(
-                                          storageUrl: imageUrl.toString(),
-                                          width: 110,
-                                          height: 110,
-                                          fit: BoxFit.cover,
-                                          placeholder: () => Icon(
-                                            Icons.person,
-                                            size: 50,
-                                            color: Colors.grey[400],
-                                          ),
-                                        ),
-                                      )
-                                    : Icon(
-                                        Icons.person,
-                                        size: 50,
-                                        color: Colors.grey[400],
-                                      ),
+                                child: ClipOval(
+                                  child: BunnyCdnImage(
+                                    storageUrl:
+                                        (imageUrl != null &&
+                                            imageUrl.toString().isNotEmpty)
+                                        ? imageUrl.toString()
+                                        : ac.auth.currentUser?.photoURL ?? '',
+                                    width: 110,
+                                    height: 110,
+                                    fit: BoxFit.cover,
+                                    placeholder: () => Icon(
+                                      Icons.person,
+                                      size: 50,
+                                      color: Colors.grey[400],
+                                    ),
+                                  ),
+                                ),
                               ),
                       ),
                       Positioned(
