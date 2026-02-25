@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:swipe_refresh/swipe_refresh.dart';
@@ -39,23 +38,107 @@ class OrderScreen extends StatelessWidget {
         children: [
           const DashboardStatsCard(),
           const SizedBox(height: 28),
-          _sectionHeader('Recent Orders'),
+          // ── Recent Orders header with See All ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _sectionHeader('Recent Orders'),
+              TextButton.icon(
+                onPressed: () => Get.to(() => AllOrdersPage()),
+                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                label: const Text('See All'),
+                style: TextButton.styleFrom(
+                  foregroundColor: _kPrimary,
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
-          FirestoreListView(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            query: FirebaseFirestore.instance
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
                 .collection('orders')
                 .where(
                   'kitchen_id',
                   isEqualTo: FirebaseAuth.instance.currentUser?.uid,
-                ),
-            loadingBuilder: (context) => _buildLoadingState(),
-            emptyBuilder: (context) => _buildEmptyState(),
-            itemBuilder: (context, doc) {
-              final order = doc.data();
-              order['docId'] = doc.id;
-              return _orderCard(orderData: order);
+                )
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return _buildLoadingState();
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return _buildEmptyState();
+              }
+
+              // Sort client-side by created_at descending (newest first)
+              final allDocs = snapshot.data!.docs.toList()
+                ..sort((a, b) {
+                  final aData = a.data() as Map<String, dynamic>;
+                  final bData = b.data() as Map<String, dynamic>;
+                  final aTime = aData['created_at'];
+                  final bTime = bData['created_at'];
+                  if (aTime == null && bTime == null) return 0;
+                  if (aTime == null) return 1;
+                  if (bTime == null) return -1;
+                  if (aTime is Timestamp && bTime is Timestamp) {
+                    return bTime.compareTo(aTime);
+                  }
+                  return 0;
+                });
+
+              // Show only top 5
+              final docs = allDocs.take(5).toList();
+
+              return Column(
+                children: [
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final order = Map<String, dynamic>.from(
+                        docs[index].data() as Map,
+                      );
+                      order['docId'] = docs[index].id;
+                      return _orderCard(orderData: order);
+                    },
+                  ),
+                  // Show "See All" footer if there are more than 5
+                  if (allDocs.length > 5)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 8),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () => Get.to(() => AllOrdersPage()),
+                          icon: const Icon(Icons.list_alt_rounded, size: 18),
+                          label: Text(
+                            'View all ${allDocs.length} orders',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _kPrimary,
+                            side: const BorderSide(
+                              color: _kPrimary,
+                              width: 1.5,
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
             },
           ),
         ],
@@ -256,6 +339,38 @@ class OrderScreen extends StatelessWidget {
 
   // ─── Order Card ──────────────────────────────────────────────────────────────
 
+  /// Formats a Firestore [Timestamp] into e.g. "25 Feb 2026  •  06:32 PM"
+  String _formatOrderTime(dynamic rawTimestamp) {
+    if (rawTimestamp == null) return '';
+    DateTime dt;
+    if (rawTimestamp is Timestamp) {
+      dt = rawTimestamp.toDate().toLocal();
+    } else {
+      return '';
+    }
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final day = dt.day.toString().padLeft(2, '0');
+    final month = months[dt.month - 1];
+    final year = dt.year;
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$day $month $year  •  $hour:$minute $period';
+  }
+
   Widget _orderCard({required Map orderData}) {
     final String status = orderData['order_status'] ?? '';
 
@@ -279,26 +394,54 @@ class OrderScreen extends StatelessWidget {
                 topRight: Radius.circular(_kRadius),
               ),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  _getStatusIcon(status),
-                  size: 18,
-                  color: _getStatusTextColor(status),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Order #${orderData['order_id'] ?? '—'}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1A2E),
+                // ── Order ID + status badge ──
+                Row(
+                  children: [
+                    Icon(
+                      _getStatusIcon(status),
+                      size: 18,
+                      color: _getStatusTextColor(status),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Order #${orderData['order_id'] ?? '—'}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1A1A2E),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    _statusBadge(status),
+                  ],
                 ),
-                _statusBadge(status),
+                // ── Order date & time ──
+                if (orderData['created_at'] != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 13,
+                        color: _getStatusTextColor(status).withOpacity(0.75),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatOrderTime(orderData['created_at']),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: _getStatusTextColor(status).withOpacity(0.85),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -615,6 +758,518 @@ class order_status {
   static const inTransit = 'InTransit';
   static const delivered = 'Delivered';
   static const cancelled = 'Cancelled';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// All Orders Page — shows every order sorted by time
+// ════════════════════════════════════════════════════════════════════════════
+
+class AllOrdersPage extends StatelessWidget {
+  AllOrdersPage({super.key});
+
+  final OrderController oc = Get.find<OrderController>();
+
+  static const _kPrimary = Color(0xFFEF5350);
+  static const _kRadius = 16.0;
+  static const _kCardShadow = [
+    BoxShadow(
+      color: Color(0x14000000),
+      blurRadius: 12,
+      spreadRadius: 0,
+      offset: Offset(0, 4),
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FA),
+      appBar: AppBar(
+        backgroundColor: _kPrimary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
+        title: const Text(
+          'All Orders',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+          ),
+        ),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('orders')
+            .where(
+              'kitchen_id',
+              isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+            )
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: _kPrimary),
+            );
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: _kPrimary.withOpacity(0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.receipt_long_rounded,
+                      size: 48,
+                      color: _kPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'No Orders Yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A2E),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // Sort client-side by created_at descending (newest first)
+          final docs = snapshot.data!.docs.toList()
+            ..sort((a, b) {
+              final aData = a.data() as Map<String, dynamic>;
+              final bData = b.data() as Map<String, dynamic>;
+              final aTime = aData['created_at'];
+              final bTime = bData['created_at'];
+              if (aTime == null && bTime == null) return 0;
+              if (aTime == null) return 1;
+              if (bTime == null) return -1;
+              if (aTime is Timestamp && bTime is Timestamp) {
+                return bTime.compareTo(aTime);
+              }
+              return 0;
+            });
+
+          return ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final order = Map<String, dynamic>.from(
+                docs[index].data() as Map,
+              );
+              order['docId'] = docs[index].id;
+              return _orderCard(orderData: order);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // ── Helpers (duplicated from OrderScreen so AllOrdersPage is self-contained) ──
+
+  String _formatOrderTime(dynamic rawTimestamp) {
+    if (rawTimestamp == null) return '';
+    if (rawTimestamp is! Timestamp) return '';
+    final dt = rawTimestamp.toDate().toLocal();
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final day = dt.day.toString().padLeft(2, '0');
+    final month = months[dt.month - 1];
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$day $month ${dt.year}  •  $hour:$minute $period';
+  }
+
+  Widget _orderCard({required Map orderData}) {
+    final String status = orderData['order_status'] ?? '';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(_kRadius),
+        boxShadow: _kCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Header ──
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: _getStatusBackgroundColor(status).withOpacity(0.35),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(_kRadius),
+                topRight: Radius.circular(_kRadius),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      _getStatusIcon(status),
+                      size: 18,
+                      color: _getStatusTextColor(status),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Order #${orderData['order_id'] ?? '—'}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1A1A2E),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    _statusBadge(status),
+                  ],
+                ),
+                if (orderData['created_at'] != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 13,
+                        color: _getStatusTextColor(status).withOpacity(0.75),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatOrderTime(orderData['created_at']),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: _getStatusTextColor(status).withOpacity(0.85),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // ── Items ──
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: (orderData['items'] ?? []).length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final item = orderData['items'][index];
+                return _itemRow(item);
+              },
+            ),
+          ),
+          // ── Delivery message ──
+          Obx(() {
+            final message =
+                oc.deliveryMessages[orderData['docId']] ??
+                orderData['deliveryMessage'];
+            final st = orderData['order_status'];
+            if (message == null ||
+                (st != order_status.delivered &&
+                    st != order_status.cancelled)) {
+              return const SizedBox();
+            }
+            final isSuccess = message == 'success';
+            return Container(
+              margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isSuccess ? Colors.green.shade50 : Colors.red.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSuccess
+                      ? Colors.green.shade300
+                      : Colors.red.shade300,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    isSuccess
+                        ? Icons.check_circle_rounded
+                        : Icons.error_rounded,
+                    color: isSuccess ? Colors.green : Colors.red,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      isSuccess
+                          ? 'Yeayyy! 😀 Food delivered successfully'
+                          : 'Oh no! ☹️ Food delivery failed',
+                      style: TextStyle(
+                        color: isSuccess
+                            ? Colors.green.shade800
+                            : Colors.red.shade800,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          // ── Actions ──
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: _orderActions(orderData),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemRow(Map item) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FA),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: _kPrimary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.restaurant_menu_rounded,
+              color: _kPrimary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item['dish_name'] ?? 'Item',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1A1A2E),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  'Qty: ${item['quantity'] ?? 1}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF9E9E9E),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '₹${item['price'] ?? '0'}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: Colors.green.shade700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statusBadge(String? status) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: _getStatusBackgroundColor(status),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status ?? 'New',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: _getStatusTextColor(status),
+        ),
+      ),
+    );
+  }
+
+  Color _getStatusBackgroundColor(String? status) {
+    switch (status) {
+      case order_status.pending:
+        return Colors.blue.shade100;
+      case order_status.preparing:
+        return Colors.orange.shade100;
+      case order_status.inTransit:
+        return Colors.purple.shade100;
+      case order_status.delivered:
+        return Colors.green.shade100;
+      case order_status.cancelled:
+        return Colors.red.shade100;
+      default:
+        return Colors.grey.shade100;
+    }
+  }
+
+  Color _getStatusTextColor(String? status) {
+    switch (status) {
+      case order_status.pending:
+        return Colors.blue.shade700;
+      case order_status.preparing:
+        return Colors.orange.shade700;
+      case order_status.inTransit:
+        return Colors.purple.shade700;
+      case order_status.delivered:
+        return Colors.green.shade700;
+      case order_status.cancelled:
+        return Colors.red.shade700;
+      default:
+        return Colors.grey.shade700;
+    }
+  }
+
+  IconData _getStatusIcon(String? status) {
+    switch (status) {
+      case order_status.pending:
+        return Icons.hourglass_top_rounded;
+      case order_status.preparing:
+        return Icons.soup_kitchen_rounded;
+      case order_status.inTransit:
+        return Icons.delivery_dining_rounded;
+      case order_status.delivered:
+        return Icons.check_circle_rounded;
+      case order_status.cancelled:
+        return Icons.cancel_rounded;
+      default:
+        return Icons.receipt_long_rounded;
+    }
+  }
+
+  Widget _orderActions(Map orderData) {
+    final String status = orderData['order_status'] ?? '';
+    final String docId = orderData['docId'] ?? '';
+    if (status == order_status.delivered || status == order_status.cancelled) {
+      return const SizedBox();
+    }
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _kPrimary,
+              side: const BorderSide(color: _kPrimary, width: 1.5),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: Icon(
+              status == order_status.inTransit
+                  ? Icons.error_outline_rounded
+                  : Icons.close_rounded,
+              size: 18,
+            ),
+            label: Text(
+              status == order_status.inTransit ? 'Failed' : 'Reject',
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
+            onPressed: () {
+              if (status == order_status.inTransit) {
+                oc.failedDelivery(docId);
+              } else {
+                oc.confirmCancel(docId);
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade600,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: Icon(
+              status == order_status.pending
+                  ? Icons.check_rounded
+                  : status == order_status.preparing
+                  ? Icons.done_all_rounded
+                  : Icons.local_shipping_rounded,
+              size: 18,
+            ),
+            label: Text(
+              status == order_status.pending
+                  ? 'Accept'
+                  : status == order_status.preparing
+                  ? 'Prepared'
+                  : 'Delivered',
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
+            onPressed: () {
+              if (status == order_status.pending) {
+                oc.acceptOrder(docId);
+              } else if (status == order_status.preparing) {
+                oc.foodPrepared(docId);
+              } else if (status == order_status.inTransit) {
+                oc.markDelivered(docId);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class DashboardStatsCard extends StatelessWidget {
