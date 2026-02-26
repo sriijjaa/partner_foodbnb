@@ -18,6 +18,7 @@ class EarningsScreen extends StatelessWidget {
 
   // Reactive filter: 'weekly' | 'lifetime'
   final RxString earningFilter = 'weekly'.obs;
+  final RxString orderFilter = 'successful'.obs;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,7 +159,7 @@ class EarningsScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Ajka Tarik',
+                                  'Ajka Tarikh',
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 11,
@@ -281,24 +282,108 @@ class EarningsScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withAlpha(25),
-                            blurRadius: 5,
-                            spreadRadius: 5,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: _buildStatBox(
-                        'ORDERS',
-                        ac.userData.value['total_orders'].toString(),
-                        Icons.shopping_bag,
+                  Obx(
+                    () => Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withAlpha(25),
+                              blurRadius: 5,
+                              spreadRadius: 5,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Toggle chips
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                              child: Row(
+                                children: [
+                                  _filterChip(
+                                    label: 'Success',
+                                    selected: orderFilter.value == 'successful',
+                                    onTap: () =>
+                                        orderFilter.value = 'successful',
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _filterChip(
+                                    label: 'Failed',
+                                    selected: orderFilter.value == 'failed',
+                                    onTap: () => orderFilter.value = 'failed',
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Stat value
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        orderFilter.value == 'successful'
+                                            ? Icons.check_circle_outline
+                                            : Icons.cancel_outlined,
+                                        color: orderFilter.value == 'successful'
+                                            ? Colors.green
+                                            : primaryRed,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        orderFilter.value == 'successful'
+                                            ? 'SUCCESSFUL'
+                                            : 'FAILED',
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  StreamBuilder<QuerySnapshot>(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('orders')
+                                        .where(
+                                          'deliveryMessage',
+                                          isEqualTo:
+                                              orderFilter.value == 'successful'
+                                              ? 'success'
+                                              : 'failed',
+                                        )
+                                        .snapshots(),
+                                    builder: (context, snapshot) {
+                                      final count = snapshot.hasData
+                                          ? snapshot.data!.docs.length
+                                          : 0;
+                                      return Text(
+                                        count.toString(),
+                                        style: TextStyle(
+                                          color:
+                                              orderFilter.value == 'successful'
+                                              ? Colors.green
+                                              : primaryRed,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
