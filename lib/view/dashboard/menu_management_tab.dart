@@ -7,9 +7,14 @@ import 'package:partner_foodbnb/controller/dish_controller.dart';
 import 'package:partner_foodbnb/view/screens/add_dish.dart';
 import 'package:partner_foodbnb/widgets/bunny_cdn_image.dart';
 
-class MenuScreen extends StatelessWidget {
-  MenuScreen({super.key});
+class MenuScreen extends StatefulWidget {
+  const MenuScreen({super.key});
 
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
   final List<String> categories = [
     'All',
     'Active',
@@ -25,6 +30,13 @@ class MenuScreen extends StatelessWidget {
   // Reactive search state
   final RxString searchQuery = ''.obs;
   final RxInt _matchCount = 0.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize order listener for automatic inventory sync
+    dmc.initializeOrderListener();
+  }
 
   // ── Design tokens ─────────────────────────────────────────────────────────
   static const _kPrimary = Color(0xFFEF5350);
@@ -573,7 +585,7 @@ class MenuScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.inventory_2_outlined,
-                                size: 10,
+                                size: 16, //make the icon smaller and bigger
                                 color: isAvailable
                                     ? const Color(0xFF2E7D32)
                                     : _kPrimary,

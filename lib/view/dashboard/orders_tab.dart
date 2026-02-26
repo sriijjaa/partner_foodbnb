@@ -380,6 +380,7 @@ class OrderScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(_kRadius),
         boxShadow: _kCardShadow,
+        border: Border.all(width: 1, color: Colors.white),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,7 +389,7 @@ class OrderScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: _getStatusBackgroundColor(status).withOpacity(0.35),
+              color: _getStatusBackgroundColor(status).withValues(alpha: 0.35),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(_kRadius),
                 topRight: Radius.circular(_kRadius),
@@ -428,7 +429,9 @@ class OrderScreen extends StatelessWidget {
                       Icon(
                         Icons.access_time_rounded,
                         size: 13,
-                        color: _getStatusTextColor(status).withOpacity(0.75),
+                        color: _getStatusTextColor(
+                          status,
+                        ).withValues(alpha: 0.75),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -436,7 +439,9 @@ class OrderScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: _getStatusTextColor(status).withOpacity(0.85),
+                          color: _getStatusTextColor(
+                            status,
+                          ).withValues(alpha: 0.85),
                         ),
                       ),
                     ],
@@ -458,6 +463,126 @@ class OrderScreen extends StatelessWidget {
                 final item = orderData['items'][index];
                 return _itemRow(item);
               },
+            ),
+          ),
+
+          // ── Total Amount ──
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Text(
+                  'Total:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1A2E),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '₹${orderData['total_amount'] ?? '0'}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF2E7D32),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Order Instructions ──
+          if ((orderData['notes'] ?? '').toString().isNotEmpty)
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3CD),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFFE0B2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.info_rounded,
+                    color: Color(0xFFF57F17),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Special Instructions',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1A1A2E),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          orderData['notes'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF795548),
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // ── Delivery Address ──
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFBBDEFB)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.location_on_rounded,
+                  color: Color(0xFF1976D2),
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Delivery Address',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF000000),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        orderData['delivery_address'] ?? 'No address provided',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF1976D2),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -540,7 +665,7 @@ class OrderScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: _kPrimary.withOpacity(0.1),
+              color: _kPrimary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -822,7 +947,7 @@ class AllOrdersPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: _kPrimary.withOpacity(0.08),
+                      color: _kPrimary.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -921,7 +1046,7 @@ class AllOrdersPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: _getStatusBackgroundColor(status).withOpacity(0.35),
+              color: _getStatusBackgroundColor(status).withValues(alpha: 0.35),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(_kRadius),
                 topRight: Radius.circular(_kRadius),
@@ -959,7 +1084,9 @@ class AllOrdersPage extends StatelessWidget {
                       Icon(
                         Icons.access_time_rounded,
                         size: 13,
-                        color: _getStatusTextColor(status).withOpacity(0.75),
+                        color: _getStatusTextColor(
+                          status,
+                        ).withValues(alpha: 0.75),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -990,6 +1117,52 @@ class AllOrdersPage extends StatelessWidget {
               },
             ),
           ),
+          // ── Order Instructions ──
+          if ((orderData['notes'] ?? '').toString().isNotEmpty)
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3CD),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFFE0B2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.info_rounded,
+                    color: Color(0xFFF57F17),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Special Instructions',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1A1A2E),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          orderData['notes'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF795548),
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           // ── Delivery message ──
           Obx(() {
             final message =

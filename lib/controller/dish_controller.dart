@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +31,99 @@ class DishMenuController extends GetxController {
 
   final AuthController ac = Get.put(AuthController());
 
+  // ─── Inventory Sync with Orders ────────────────────────────────────────
+  final Set<String> processedOrderIds = {};
+  StreamSubscription? orderStreamSubscription;
+
+  /// Initialize order listener to sync inventory with orders
+  void initializeOrderListener() {
+    startOrderInventorySync();
+  }
+
+  /// Listen to orders and automatically update dish quantities
+  void startOrderInventorySync() {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return;
+
+    // Stop any existing subscription
+    orderStreamSubscription?.cancel();
+
+    orderStreamSubscription = FirebaseFirestore.instance
+        .collection('orders')
+        .where('kitchen_id', isEqualTo: currentUserId)
+        .snapshots()
+        .listen((snapshot) {
+          for (var doc in snapshot.docs) {
+            final orderId = doc.id;
+
+            // Skip if already processed
+            if (processedOrderIds.contains(orderId)) continue;
+
+            final orderData = doc.data();
+            final status = orderData['order_status'] ?? '';
+
+            // Only process pending orders (freshly placed)
+            if (status == 'Pending') {
+              processedOrderIds.add(orderId);
+              updateDishQuantitiesForOrder(orderData);
+            }
+          }
+        });
+  }
+
+  /// Update dish quantities based on order items
+  Future<void> updateDishQuantitiesForOrder(
+    Map<String, dynamic> orderData,
+  ) async {
+    try {
+      final items = orderData['items'] as List<dynamic>?;
+      if (items == null || items.isEmpty) return;
+
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+      if (currentUserId == null) return;
+
+      final batch = FirebaseFirestore.instance.batch();
+
+      for (var itemData in items) {
+        final item = itemData as Map<String, dynamic>;
+        final dishName = item['dish_name'] as String?;
+        final quantity = (item['quantity'] ?? 1) as int;
+
+        if (dishName == null || dishName.isEmpty) continue;
+
+        // Try to find dish by name and kitchen_id
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('dish')
+            .where('dish_name', isEqualTo: dishName)
+            .where('kitchen_id', isEqualTo: currentUserId)
+            .limit(1)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          final dishDoc = querySnapshot.docs.first;
+          final currentQty = (dishDoc['qnt_available'] ?? 0) as int;
+          final newQty = (currentQty - quantity).clamp(0, currentQty);
+
+          // Update in batch
+          batch.update(dishDoc.reference, {'qnt_available': newQty});
+        }
+      }
+
+      // Commit all updates
+      await batch.commit();
+
+      log('Inventory updated for order: ${orderData['order_id']}');
+    } catch (e) {
+      log('Error updating dish quantities for order: $e');
+    }
+  }
+
+  @override
+  void onClose() {
+    orderStreamSubscription?.cancel();
+    super.onClose();
+  }
+
   void addIngredient() {
     final val = ingredientInput.text.trim();
     if (val.isEmpty) return;
@@ -39,7 +133,7 @@ class DishMenuController extends GetxController {
 
   /// Uploads the currently selected dish image to BunnyCDN and returns its URL.
   /// Returns an empty string if no image is selected.
-  Future<String> _uploadDishImage(String dishId) async {
+  Future<String> uploadDishImage(String dishId) async {
     if (selectedImagePath.value.isEmpty) return '';
 
     try {
@@ -73,7 +167,7 @@ class DishMenuController extends GetxController {
       final String id = DateTime.now().microsecondsSinceEpoch.toString();
 
       // Upload image first (if selected)
-      final String imageUrl = await _uploadDishImage(id);
+      final String imageUrl = await uploadDishImage(id);
 
       // 'Dish' collection data create/add to db
       await FirebaseFirestore.instance.collection('dish').doc(id).set({
@@ -146,7 +240,7 @@ class DishMenuController extends GetxController {
       isLoading.value = true;
 
       // Upload new image if a new one was selected
-      final String imageUrl = await _uploadDishImage(id);
+      final String imageUrl = await uploadDishImage(id);
 
       final Map<String, dynamic> updateData = {
         'dish_id': id,
