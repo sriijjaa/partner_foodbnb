@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
 import 'package:partner_foodbnb/view/auth_screens/forget_password.dart';
@@ -31,10 +32,11 @@ class Login extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 36,
                     backgroundColor: primaryRed.withValues(),
-                    child: Icon(
-                      Icons.restaurant_menu,
-                      color: primaryRed,
-                      size: 36,
+                    child: SvgPicture.asset(
+                      'assets/images/foodbnb_logo.svg',
+                      width: 76,
+                      height: 76,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
@@ -137,23 +139,28 @@ class Login extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    ac.signinWithGoogle();
-                  },
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      ac.signinWithGoogle();
+                    },
+                    child: Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
 
-                      children: [
-                        Image.asset(
-                          'assets/images/google_2.jpg',
-                          height: 50,
-                          width: 50,
-                        ),
-                        Text('Sign in with Google'),
-                      ],
+                        children: [
+                          Image.asset(
+                            'assets/images/google.png',
+                            height: 35,
+                            width: 35,
+                          ),
+                          SizedBox(width: 8),
+                          Text('Sign in with Google'),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -75,7 +75,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 return Stack(
                   children: [
                     FirestoreListView<Map<String, dynamic>>(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 65),
                       query: FirebaseFirestore.instance
                           .collection('dish')
                           .where(
