@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
@@ -282,6 +282,8 @@ class EarningsScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(width: 12),
+
+                  //successfull orders and failed orders
                   Obx(
                     () => Expanded(
                       child: Container(
@@ -355,6 +357,13 @@ class EarningsScreen extends StatelessWidget {
                                     stream: FirebaseFirestore.instance
                                         .collection('orders')
                                         .where(
+                                          'kitchen_id',
+                                          isEqualTo: FirebaseAuth
+                                              .instance
+                                              .currentUser
+                                              ?.uid,
+                                        )
+                                        .where(
                                           'deliveryMessage',
                                           isEqualTo:
                                               orderFilter.value == 'successful'
@@ -420,219 +429,246 @@ class EarningsScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-
-            FirestoreListView(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              query: FirebaseFirestore.instance
+            // ── Recent Transactions List ─────────────────────────────
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
                   .collection('transactions')
-                  .orderBy('time', descending: true),
-              itemBuilder: (context, doc) {
-                final transactionData = doc.data();
-
-                return Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withAlpha(25),
-                        blurRadius: 5,
-                        spreadRadius: 5,
-                        offset: Offset(0, 2),
-                      ),
+                  .where(
+                    'kitchen_id',
+                    isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+                  )
+                  .orderBy('time', descending: true)
+                  .limit(2) //for recent 2 transactions
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      "Error: ${snapshot.error}",
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+                final docs = snapshot.data?.docs ?? [];
+                if (docs.isEmpty) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.receipt_long, size: 48, color: Colors.grey),
+                      SizedBox(height: 8),
+                      Text("No transactions yet"),
                     ],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Card(
-                    color: Colors.white,
-                    // elevation: 2,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 2,
-                      vertical: 6,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // ICON
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color:
-                                  transactionData['type'] == 'Card' ||
-                                      transactionData['type'] == 'UPI' ||
-                                      transactionData['type'] == 'COD'
-                                  ? Colors.red.withValues(alpha: 0.12)
-                                  : Colors.blue.withValues(alpha: 0.12),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              transactionData['type'] == 'credit' &&
-                                      transactionData['type'] == 'UPI' &&
-                                      transactionData['type'] == 'COD'
-                                  ? Icons.arrow_downward
-                                  : Icons.arrow_upward,
-                              color:
-                                  transactionData['type'] == 'credit' ||
-                                      transactionData['type'] == 'UPI' ||
-                                      transactionData['type'] == 'COD'
-                                  ? Colors.green
-                                  : Colors.red,
+                  );
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final transactionData =
+                        docs[index].data() as Map<String, dynamic>;
+
+                    final DateTime time =
+                        (transactionData['time'] as Timestamp?)?.toDate() ??
+                        DateTime.now();
+                    final String paymentMode =
+                        ((transactionData['payment_mode'] ?? 'COD').toString())
+                            .toUpperCase();
+                    final String status =
+                        ((transactionData['status'] ?? 'Pending').toString())
+                            .toLowerCase();
+                    final dynamic amountData = transactionData['total_amount'];
+                    final String amount = amountData != null
+                        ? amountData.toString()
+                        : '0';
+
+                    // Extract details
+                    final String orderId =
+                        (transactionData['order_id']?.toString() ?? 'N/A');
+                    final String txnId =
+                        (transactionData['txn_id']?.toString() ?? 'N/A');
+                    final String dishName =
+                        (transactionData['dish_name']?.toString() ?? 'N/A');
+                    final String kitchenName =
+                        (transactionData['kitchen_name']?.toString() ?? 'N/A');
+                    final String quantity =
+                        (transactionData['qnt']?.toString() ?? '1');
+                    final String userName =
+                        (transactionData['user_name']?.toString() ?? 'N/A');
+                    final String deliveryAddress =
+                        (transactionData['delivery_address']?.toString() ??
+                        'N/A');
+                    final String txnNote =
+                        (transactionData['txn_note']?.toString() ?? 'N/A');
+
+                    final bool isPaid =
+                        status.contains('success') || status.contains('paid');
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withAlpha(20),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ExpansionTile(
+                        shape: const RoundedRectangleBorder(
+                          side: BorderSide.none,
+                        ),
+                        tilePadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        leading: CircleAvatar(
+                          backgroundColor: paymentMode == 'COD'
+                              ? Colors.orange.withOpacity(0.1)
+                              : paymentMode == 'UPI'
+                              ? Colors.blue.withOpacity(0.1)
+                              : Colors.green.withOpacity(0.1),
+                          child: Icon(
+                            isPaid ? Icons.check_circle : Icons.pending_actions,
+                            color: isPaid ? Colors.green : Colors.orange,
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          "₹ $amount",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        subtitle: Text(
+                          DateFormat('MMM d, yyyy • hh:mm a').format(time),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isPaid
+                                ? Colors.green.withOpacity(0.1)
+                                : Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            status.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: isPaid ? Colors.green : Colors.orange,
                             ),
                           ),
-
-                          const SizedBox(width: 12),
-
-                          // DETAILS
-                          Expanded(
+                        ),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "₹ ${transactionData['amount']}",
+                                const Divider(),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  "Order Details",
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
                                   ),
                                 ),
-
-                                SizedBox(height: 6),
-
-                                Text(
-                                  "Order ID: ${transactionData['order_id']}",
-                                  style: TextStyle(fontSize: 13),
-                                ),
-
-                                Text(
-                                  "Txn ID: ${transactionData['id']}",
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
+                                const SizedBox(height: 8),
+                                _detailRow("Order ID", orderId),
+                                _detailRow("Transaction ID", txnId),
+                                _detailRow("Dish", dishName),
+                                _detailRow("Quantity", quantity),
+                                _detailRow("Kitchen", kitchenName),
+                                const SizedBox(height: 12),
+                                const Divider(),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  "Payment Details",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
                                   ),
                                 ),
-
-                                SizedBox(height: 6),
-
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            transactionData['status'] == 'paid'
-                                            ? Colors.green
-                                            : Colors.red,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        transactionData['status'].toUpperCase(),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              transactionData['status'] ==
-                                                  'paid'
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
-                                      ),
-                                    ),
-
-                                    SizedBox(width: 6),
-
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            transactionData['type'] == 'CARD' ||
-                                                transactionData['type'] ==
-                                                    'UPI' ||
-                                                transactionData['type'] == 'COD'
-                                            ? Colors.blue.withValues(
-                                                alpha: 0.15,
-                                              )
-                                            : Colors.red.withValues(
-                                                alpha: 0.15,
-                                              ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        transactionData['type'].toUpperCase(),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              transactionData['type'] ==
-                                                      'CARD' ||
-                                                  transactionData['type'] ==
-                                                      'UPI' ||
-                                                  transactionData['type'] ==
-                                                      'COD'
-                                              ? Colors.blue
-                                              : Colors.red,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: 8),
+                                _detailRow("Payment Method", paymentMode),
+                                _detailRow("Amount", "₹ $amount"),
+                                _detailRow("Transaction Note", txnNote),
+                                const SizedBox(height: 12),
+                                const Divider(),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  "Customer Details",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-
-                                const SizedBox(height: 6),
-
-                                Text(
-                                  transactionData['txn_note'],
-                                  style: const TextStyle(fontSize: 12),
-                                ),
+                                const SizedBox(height: 8),
+                                _detailRow("Customer Name", userName),
+                                _detailRow("Delivery Address", deliveryAddress),
                               ],
-                            ),
-                          ),
-
-                          Text(
-                            transactionData['time']
-                                .toDate()
-                                .toString()
-                                .substring(0, 16),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.black,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                );
-              },
-
-              errorBuilder: (context, error, stackTrace) {
-                return Center(
-                  child: Text(
-                    "Error: $error",
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                );
-              },
-              emptyBuilder: (context) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.receipt_long, size: 48, color: Colors.grey),
-                    SizedBox(height: 8),
-                    Text("No transactions yet"),
-                  ],
+                    );
+                  },
                 );
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(
+              "$label:",
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value ?? 'N/A',
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

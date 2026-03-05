@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
-
 
 class ForgetPassword extends StatelessWidget {
   ForgetPassword({super.key});
@@ -32,7 +32,12 @@ class ForgetPassword extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 40,
                   backgroundColor: primaryRed.withValues(),
-                  child: Icon(Icons.lock_reset, color: primaryRed, size: 40),
+                  child: SvgPicture.asset(
+                    'assets/images/foodbnb_logo.svg',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
 
@@ -106,8 +111,6 @@ class ForgetPassword extends StatelessWidget {
       ),
     );
   }
-
-  
 
   static Widget _label(String text) {
     return Padding(
