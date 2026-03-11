@@ -22,6 +22,7 @@ class _MenuScreenState extends State<MenuScreen> {
     'Starters',
     'Mains',
     'Desserts',
+    'Thali',
   ];
 
   final RxInt selectedCategoryIndex = 0.obs;
@@ -81,7 +82,8 @@ class _MenuScreenState extends State<MenuScreen> {
                           .where(
                             'kitchen_id',
                             isEqualTo: FirebaseAuth.instance.currentUser?.uid,
-                          ),
+                          )
+                          .orderBy('created_at', descending: true),
                       loadingBuilder: (_) => _buildLoadingState(),
                       emptyBuilder: (_) => _buildEmptyState(),
                       itemBuilder: (context, doc) {
@@ -499,16 +501,37 @@ class _MenuScreenState extends State<MenuScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(
-                            dish['dish_name'] ?? 'N/A',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 15,
-                              color: Color(0xFF1A1A2E),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          child: () {
+                            final name = dish['dish_name'] ?? 'N/A';
+                            final thaliType = dish['thali_type'] ?? '';
+                            final isThali =
+                                dish['category'] == 'Thali' &&
+                                thaliType.isNotEmpty;
+                            return RichText(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 15,
+                                  color: Color(0xFF1A1A2E),
+                                ),
+                                children: [
+                                  TextSpan(text: name),
+                                  if (isThali)
+                                    TextSpan(
+                                      text: ' ($thaliType)',
+                                      style: const TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 13,
+                                        color: Color(0xFF757575),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }(),
                         ),
                         const SizedBox(width: 6),
                         // Veg / Non-veg dot badge
@@ -623,6 +646,10 @@ class _MenuScreenState extends State<MenuScreen> {
                             dmc.ingredientsList.value = List<String>.from(
                               dish['ingredients'] ?? [],
                             );
+                            dmc.preparationTimeInput.text =
+                                dish['preparation_time'] ?? '';
+                            dmc.selectedThaliType.value =
+                                dish['thali_type'] ?? '';
                             // Pass existing image URL so edit screen can show it
                             final List imgs = dish['images'] ?? [];
                             dmc.existingImageUrl.value = imgs.isNotEmpty

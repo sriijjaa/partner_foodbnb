@@ -1117,6 +1117,80 @@ class AllOrdersPage extends StatelessWidget {
               },
             ),
           ),
+
+          // ── Total Amount ──
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Text(
+                  'Total:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1A2E),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '₹${orderData['total_amount'] ?? '0'}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF2E7D32),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Delivery Address ──
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFBBDEFB)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.location_on_rounded,
+                  color: Color(0xFF1976D2),
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Delivery Address',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF000000),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        orderData['delivery_address'] ?? 'No address provided',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF1976D2),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           // ── Order Instructions ──
           if ((orderData['notes'] ?? '').toString().isNotEmpty)
             Container(
@@ -1452,7 +1526,6 @@ class DashboardStatsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // GetX controllers
     final DashboardController dc = Get.find<DashboardController>();
-    final AuthController ac = Get.find<AuthController>();
 
     // Extracted constants from OrderScreen
     const kRadius = 16.0;
@@ -1506,8 +1579,10 @@ class DashboardStatsCard extends StatelessWidget {
           Obx(
             () => _statBox(
               Icons.currency_rupee_rounded,
-              ac.userData['wallet_balance']?.toString() ?? '0',
-              '   Total\nRevenue',
+              dc.totalRevenue.value % 1 == 0
+                  ? dc.totalRevenue.value.toInt().toString()
+                  : dc.totalRevenue.value.toStringAsFixed(2),
+              '   Daily\nRevenue',
               const Color(0xFF2196F3),
             ),
           ),

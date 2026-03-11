@@ -19,6 +19,7 @@ class DishMenuController extends GetxController {
 
   RxString selectedCategory = ''.obs;
   RxString selectedPreference = ''.obs;
+  RxString selectedThaliType = ''.obs;
   Rx isLoading = false.obs;
   RxInt currentQuantity = 0.obs; // for button
   RxList<String> ingredientsList = <String>[].obs;
@@ -177,6 +178,9 @@ class DishMenuController extends GetxController {
         'price': int.parse(dishPrice.text.trim()),
         'category': selectedCategory.value,
         'preference': selectedPreference.value,
+        'thali_type': selectedCategory.value == 'Thali'
+            ? selectedThaliType.value
+            : '',
         'created_at': DateTime.now(),
         "qnt_available": currentQuantity.value,
         'qnt_total': currentQuantity.value,
@@ -226,6 +230,7 @@ class DishMenuController extends GetxController {
     dishQntAvailable.clear();
     selectedCategory.value = '';
     selectedPreference.value = '';
+    selectedThaliType.value = '';
 
     currentQuantity.value = 0;
     selectedImagePath.value = '';
@@ -249,6 +254,9 @@ class DishMenuController extends GetxController {
         'price': int.parse(dishPrice.text.trim()),
         'category': selectedCategory.value,
         'preference': selectedPreference.value,
+        'thali_type': selectedCategory.value == 'Thali'
+            ? selectedThaliType.value
+            : '',
         "qnt_available": currentQuantity.value,
         'ingredients': ingredientsList.toList(),
         'preparation_time': preparationTimeInput.text.trim(),

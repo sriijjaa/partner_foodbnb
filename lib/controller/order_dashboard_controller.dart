@@ -16,12 +16,14 @@ class DashboardController extends GetxController {
   RxInt activeDishes = 0.obs;
   RxInt soldOutDishes = 0.obs;
   RxInt totalOrders = 0.obs;
+  RxDouble totalRevenue = 0.0.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchDishCounts();
     fetchOrderCount();
+    fetchTotalRevenue();
   }
 
   /// ACTIVE + SOLD OUT DISHES
@@ -58,11 +60,36 @@ class DashboardController extends GetxController {
     totalOrders.value = snapshot.docs.length;
   }
 
+  /// TOTAL REVENUE — sum of total_amount for all delivered orders
+  Future<void> fetchTotalRevenue() async {
+    final snapshot = await firestore
+        .collection('orders')
+        .where('kitchen_id', isEqualTo: uid)
+        .where('order_status', isEqualTo: 'Delivered')
+        .get();
+
+    double sum = 0.0;
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final raw = data['total_amount'];
+      if (raw != null) {
+        sum += (raw is num)
+            ? raw.toDouble()
+            : double.tryParse(raw.toString()) ?? 0.0;
+      }
+    }
+    totalRevenue.value = sum;
+  }
+
   Future<void> refreshData() async {
     _refreshController.add(SwipeRefreshState.loading);
     try {
       // Specifically refreshing stats data
-      await Future.wait([fetchDishCounts(), fetchOrderCount()]);
+      await Future.wait([
+        fetchDishCounts(),
+        fetchOrderCount(),
+        fetchTotalRevenue(),
+      ]);
       _refreshController.add(SwipeRefreshState.hidden);
     } catch (e) {
       _refreshController.add(SwipeRefreshState.hidden);

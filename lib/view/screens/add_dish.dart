@@ -175,12 +175,64 @@ class AddDishScreen extends StatelessWidget {
                   DropdownMenuItem(value: "Mains", child: Text("Mains")),
                   DropdownMenuItem(value: "Starters", child: Text("Starters")),
                   DropdownMenuItem(value: "Desserts", child: Text("Desserts")),
+                  DropdownMenuItem(value: "Thali", child: Text("Thali")),
                 ],
                 onChanged: (value) {
                   dmc.selectedCategory.value = value ?? '';
+                  // Reset thali type when switching away from Thali
+                  if (value != 'Thali') {
+                    dmc.selectedThaliType.value = '';
+                  }
                 },
               ),
             ),
+
+            // Thali Type — only visible when "Thali" is selected
+            Obx(() {
+              if (dmc.selectedCategory.value != 'Thali') {
+                return const SizedBox.shrink();
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Thali Type",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: dmc.selectedThaliType.value.isEmpty
+                        ? null
+                        : dmc.selectedThaliType.value,
+                    decoration: InputDecoration(
+                      hintText: 'Select Thali Type',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: "Basic", child: Text("Basic")),
+                      DropdownMenuItem(
+                        value: "Standard",
+                        child: Text("Standard"),
+                      ),
+                      DropdownMenuItem(
+                        value: "Premium",
+                        child: Text("Premium"),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      dmc.selectedThaliType.value = value ?? '';
+                    },
+                  ),
+                ],
+              );
+            }),
 
             //preference
             SizedBox(height: 20),
