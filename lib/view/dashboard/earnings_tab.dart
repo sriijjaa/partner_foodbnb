@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_foodbnb/controller/auth_controller.dart';
+import 'package:partner_foodbnb/controller/order_dashboard_controller.dart';
 import 'package:partner_foodbnb/view/dashboard/withdraw_page.dart';
 import 'package:intl/intl.dart';
 import 'package:partner_foodbnb/view/screens/transaction_details.dart';
@@ -15,6 +16,7 @@ class EarningsScreen extends StatelessWidget {
   final Color textMain = const Color(0xFF112117);
 
   final AuthController ac = Get.put(AuthController());
+  final DashboardController dc = Get.find<DashboardController>();
 
   // Reactive filter: 'weekly' | 'lifetime'
   final RxString earningFilter = 'weekly'.obs;
@@ -263,9 +265,12 @@ class EarningsScreen extends StatelessWidget {
                                         ? ac.userData.value['weekly_earning']
                                                   ?.toString() ??
                                               '0'
-                                        : ac.userData.value['lifetime_earning']
-                                                  ?.toString() ??
-                                              '0',
+                                        : () {
+                                            final rev = dc.totalRevenue.value;
+                                            return rev % 1 == 0
+                                                ? rev.toInt().toString()
+                                                : rev.toStringAsFixed(2);
+                                          }(),
                                     style: TextStyle(
                                       color: textMain,
                                       fontSize: 20,
