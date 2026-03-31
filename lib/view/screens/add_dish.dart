@@ -16,13 +16,124 @@ class AddDishScreen extends StatelessWidget {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? image = await _imagePicker.pickImage(source: source);
-      if (image != null) {
-        dmc.selectedImagePath.value = image.path;
+      if (source == ImageSource.gallery) {
+        final List<XFile> images = await _imagePicker.pickMultiImage();
+        if (images.isNotEmpty) {
+          final int currentTotal =
+              dmc.selectedImagePaths.length + dmc.existingImageUrls.length;
+          final int remaining = 5 - currentTotal;
+          if (remaining <= 0) {
+            Get.snackbar(
+              'Limit Reached',
+              'You can only upload up to 5 images.',
+            );
+            return;
+          }
+          final int toAdd = images.length > remaining
+              ? remaining
+              : images.length;
+          for (int i = 0; i < toAdd; i++) {
+            dmc.selectedImagePaths.add(images[i].path);
+          }
+          if (images.length > remaining) {
+            Get.snackbar(
+              'Limit Reached',
+              'Only $remaining images were added. Total limit is 5.',
+            );
+          }
+        }
+      } else {
+        final XFile? image = await _imagePicker.pickImage(source: source);
+        if (image != null) {
+          if (dmc.selectedImagePaths.length + dmc.existingImageUrls.length >=
+              5) {
+            Get.snackbar(
+              'Limit Reached',
+              'You can only upload up to 5 images.',
+            );
+            return;
+          }
+          dmc.selectedImagePaths.add(image.path);
+        }
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to pick image: $e');
     }
+  }
+
+  Widget _buildImageThumbnail({
+    required Widget child,
+    required VoidCallback onRemove,
+    bool isFirst = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(right: 15, top: 5, bottom: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: SizedBox(width: 110, height: 110, child: child),
+          ),
+          if (isFirst)
+            Positioned(
+              top: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  "Main",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          Positioned(
+            top: -8,
+            right: -8,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.close_rounded,
+                  size: 16,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showImagePickerBottomSheet(BuildContext context) {
@@ -471,95 +582,144 @@ class AddDishScreen extends StatelessWidget {
               ],
             ),
             SizedBox(height: 30),
-            GestureDetector(
-              onTap: () {
-                _showImagePickerBottomSheet(context);
-              },
-              child: Obx(() {
-                final localPath = dmc.selectedImagePath.value;
-                final existingUrl = dmc.existingImageUrl.value;
-
-                Widget imageContent;
-
-                if (localPath.isNotEmpty) {
-                  // ── Newly picked local file ──
-                  imageContent = ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      File(localPath),
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: 140,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Dish Images",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+                Obx(() {
+                  final count =
+                      dmc.selectedImagePaths.length +
+                      dmc.existingImageUrls.length;
+                  return Text(
+                    "$count / 5",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: count >= 5 ? Colors.red : Colors.grey.shade600,
                     ),
                   );
-                } else if (existingUrl.isNotEmpty) {
-                  // ── Existing CDN image (edit mode) ──
-                  imageContent = Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                }),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Obx(() {
+              final localImages = dmc.selectedImagePaths;
+              final existingImages = dmc.existingImageUrls;
+              final totalCount = localImages.length + existingImages.length;
+
+              return SizedBox(
+                height: 130, // Increased height for shadows
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  children: [
+                    // --- Existing Images (Edit mode) ---
+                    ...existingImages.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final url = entry.value;
+                      return _buildImageThumbnail(
+                        isFirst: index == 0,
                         child: BunnyCdnImage(
-                          storageUrl: existingUrl,
-                          width: double.infinity,
-                          height: 140,
+                          storageUrl: url,
+                          width: 110,
+                          height: 110,
                           fit: BoxFit.cover,
                         ),
-                      ),
-                      // Tap-to-change overlay
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
+                        onRemove: () => dmc.existingImageUrls.removeAt(index),
+                      );
+                    }),
+
+                    // --- Newly Picked Images ---
+                    ...localImages.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final path = entry.value;
+                      return _buildImageThumbnail(
+                        isFirst: existingImages.isEmpty && index == 0,
+                        child: Image.file(
+                          File(path),
+                          fit: BoxFit.cover,
+                          width: 110,
+                          height: 110,
+                        ),
+                        onRemove: () => dmc.selectedImagePaths.removeAt(index),
+                      );
+                    }),
+
+                    // --- Add Image Box ---
+                    if (totalCount < 5)
+                      GestureDetector(
+                        onTap: () => _showImagePickerBottomSheet(context),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
+                          width: 110,
+                          height: 110,
+                          margin: const EdgeInsets.only(top: 5, bottom: 5),
                           decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.red.shade50.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color: Colors.red.shade200,
+                              width: 1.5,
+                              style: BorderStyle.solid,
+                            ),
                           ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.edit, color: Colors.white, size: 13),
-                              SizedBox(width: 4),
+                              Icon(
+                                Icons.add_photo_alternate_outlined,
+                                color: Colors.red.shade400,
+                                size: 30,
+                              ),
+                              const SizedBox(height: 6),
                               Text(
-                                'Change',
+                                "Add Image",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.red.shade400,
                                 ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ],
-                  );
-                } else {
-                  // ── No image yet — upload prompt ──
-                  imageContent = const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.image, size: 40, color: Colors.grey),
-                      SizedBox(height: 8),
-                      Text("Upload Dish Image"),
-                    ],
-                  );
-                }
 
-                return Container(
-                  height: 140,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: imageContent,
-                );
-              }),
-            ),
+                    // --- Empty Prompt ---
+                    if (totalCount == 0)
+                      Container(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.image_outlined,
+                              color: Colors.grey.shade400,
+                              size: 40,
+                            ),
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15),
+                              child: Text(
+                                "Click 'Add Image' to upload dish photos",
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            }),
             const SizedBox(height: 30),
             Obx(
               () => ElevatedButton(

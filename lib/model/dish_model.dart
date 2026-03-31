@@ -59,7 +59,7 @@ class DishModel {
       category: map['category'] ?? '', //main, starter etc
       kitchenId: map['kitchen_id'] ?? '',
       kitchenName: map['kitchen_name'] ?? 'Unknown',
-      images: List<String>.from(map['image'] ?? ['']), // 👈 image array
+      images: List<String>.from(map['images'] ?? []), // 👈 image array
       preference: map['preference'] ?? 'N/A',
       ingredients: map['ingredients'] ?? [],
       price: (map['price'] as num?)?.toDouble() ?? 0.0,
@@ -90,7 +90,7 @@ class DishModel {
       'kitchen_id': kitchenId,
       'kitchen_name': kitchenName,
 
-      'image': images,
+      'images': images,
 
       'preference': preference,
       'ingredients': ingredients,

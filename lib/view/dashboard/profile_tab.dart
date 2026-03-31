@@ -156,7 +156,7 @@ class ProfileScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                   () {
-                    _launchURL('https://foodbnb-global.web.app/');
+                    _launchURL('https://foodbnb-global.web.app/support');
                   },
                 ),
                 //subsctiption
@@ -200,23 +200,23 @@ class ProfileScreen extends StatelessWidget {
                 // ),
 
                 //darkmode
-                settingTile(
-                  Icons.dark_mode_rounded,
-                  Colors.black,
-                  'Dark Mode',
-                  'Go Dark.',
-                  Obx(
-                    () => Switch(
-                      value: themeController.isDarkMode.value,
-                      onChanged: themeController.toggleTheme,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: Colors.black,
-                      inactiveThumbColor: Colors.white,
-                      inactiveTrackColor: Colors.grey,
-                    ),
-                  ),
-                  () {},
-                ),
+                // settingTile(
+                //   Icons.dark_mode_rounded,
+                //   Colors.black,
+                //   'Dark Mode',
+                //   'Go Dark.',
+                //   Obx(
+                //     () => Switch(
+                //       value: themeController.isDarkMode.value,
+                //       onChanged: themeController.toggleTheme,
+                //       activeThumbColor: Colors.white,
+                //       activeTrackColor: Colors.black,
+                //       inactiveThumbColor: Colors.white,
+                //       inactiveTrackColor: Colors.grey,
+                //     ),
+                //   ),
+                //   () {},
+                // ),
               ],
             ),
             SizedBox(height: 10),

@@ -650,11 +650,10 @@ class _MenuScreenState extends State<MenuScreen> {
                                 dish['preparation_time'] ?? '';
                             dmc.selectedThaliType.value =
                                 dish['thali_type'] ?? '';
-                            // Pass existing image URL so edit screen can show it
-                            final List imgs = dish['images'] ?? [];
-                            dmc.existingImageUrl.value = imgs.isNotEmpty
-                                ? imgs[0] as String
-                                : '';
+                            // Pass existing image URLs so edit screen can show them
+                            dmc.existingImageUrls.value = List<String>.from(
+                              dish['images'] ?? [],
+                            );
                             Get.to(
                               () => AddDishScreen(),
                               arguments: [false, dish['dish_id']],

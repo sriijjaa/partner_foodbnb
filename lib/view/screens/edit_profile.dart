@@ -617,38 +617,38 @@ class AvailabilitySection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Accepting Orders",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "Toggle to open/close your kitchen",
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-              Obx(
-                () => Switch.adaptive(
-                  activeColor: primaryRed,
-                  value: ac.isAcceptingOrders.value,
-                  onChanged: (value) => ac.isAcceptingOrders.value = value,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         const Text(
+          //           "Accepting Orders",
+          //           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          //         ),
+          //         Text(
+          //           "Toggle to open/close your kitchen",
+          //           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          //         ),
+          //       ],
+          //     ),
+          //     Obx(
+          //       () => Switch.adaptive(
+          //         activeColor: primaryRed,
+          //         value: ac.isAcceptingOrders.value,
+          //         onChanged: (value) => ac.isAcceptingOrders.value = value,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // const SizedBox(height: 24),
           Text(
-            'Standard Operating Hours'.toUpperCase(),
+            'Standard Operating Hours',
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
-              color: Colors.grey,
+              color: Colors.black,
               letterSpacing: 0.5,
             ),
           ),
