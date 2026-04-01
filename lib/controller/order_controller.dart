@@ -23,6 +23,9 @@ class OrderController extends GetxController {
   // Track delivery messages for each order
   RxMap<String, String> deliveryMessages = <String, String>{}.obs;
 
+  // Track the selected order type (Orders vs Subscribed)
+  RxString selectedOrderType = 'Orders'.obs;
+
   // ---------------- ONLINE / OFFLINE ----------------
 
   Future<void> updateIsActive(bool value) async {
@@ -119,14 +122,56 @@ class OrderController extends GetxController {
 
   // InTransit → Delivered
   void markDelivered(String docId) async {
-    // Save success message to Firestore
-    await _firestore.collection('orders').doc(docId).update({
-      "order_status": OrderStatus.delivered,
-      "updatedAt": FieldValue.serverTimestamp(),
-      "deliveryMessage": "success",
-    });
-    // Update in-memory state
-    deliveryMessages[docId] = 'success';
+    try {
+      // Save success message to Firestore
+      await _firestore.collection('orders').doc(docId).update({
+        "order_status": OrderStatus.delivered,
+        "updatedAt": FieldValue.serverTimestamp(),
+        "deliveryMessage": "success",
+      });
+      // Update in-memory state
+      deliveryMessages[docId] = 'success';
+
+      // Calculate and update total_revenue in moms_kitchens
+      await _updateKitchenTotalRevenue();
+    } catch (e) {
+      log("markDelivered error: $e");
+    }
+  }
+
+  // Update kitchen's total_revenue in moms_kitchens collection
+  Future<void> _updateKitchenTotalRevenue() async {
+    try {
+      final kitchenId = auth.currentUser!.uid;
+
+      // Fetch all successfully delivered orders
+      final snapshot = await _firestore
+          .collection('orders')
+          .where('kitchen_id', isEqualTo: kitchenId)
+          .where('order_status', isEqualTo: OrderStatus.delivered)
+          .get();
+
+      // Calculate total revenue
+      double totalRevenue = 0.0;
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final raw = data['total_amount'];
+        if (raw != null) {
+          totalRevenue += (raw is num)
+              ? raw.toDouble()
+              : double.tryParse(raw.toString()) ?? 0.0;
+        }
+      }
+
+      // Update kitchen document with total_revenue
+      await _firestore.collection('moms_kitchens').doc(kitchenId).update({
+        'total_revenue': totalRevenue,
+      });
+
+      log("Kitchen total_revenue updated: $totalRevenue");
+    } catch (e) {
+      log("_updateKitchenTotalRevenue error: $e");
+    }
   }
 
   // Any stage → Cancelled (with confirmation)

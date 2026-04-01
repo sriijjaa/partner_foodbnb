@@ -42,7 +42,13 @@ class OrderScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _sectionHeader('Recent Orders'),
+              Obx(
+                () => _sectionHeader(
+                  oc.selectedOrderType.value == 'Subscribed'
+                      ? 'Subscribed Orders'
+                      : 'Recent Orders',
+                ),
+              ),
               TextButton.icon(
                 onPressed: () => Get.to(() => AllOrdersPage()),
                 icon: const Icon(Icons.arrow_forward_rounded, size: 16),
@@ -58,6 +64,69 @@ class OrderScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
+          // ── Orders / Subscribed Toggle ──
+          Obx(
+            () => Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => oc.selectedOrderType.value = 'Orders',
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: oc.selectedOrderType.value == 'Orders'
+                            ? _kPrimary
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: _kPrimary, width: 1.5),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Orders',
+                        style: TextStyle(
+                          color: oc.selectedOrderType.value == 'Orders'
+                              ? Colors.white
+                              : _kPrimary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => oc.selectedOrderType.value = 'Subscribed',
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: oc.selectedOrderType.value == 'Subscribed'
+                            ? _kPrimary
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: _kPrimary, width: 1.5),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Subscribed',
+                        style: TextStyle(
+                          color: oc.selectedOrderType.value == 'Subscribed'
+                              ? Colors.white
+                              : _kPrimary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('orders')
@@ -70,75 +139,93 @@ class OrderScreen extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return _buildLoadingState();
               }
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return _buildEmptyState();
-              }
+              return Obx(() {
+                // Filter based on selectedOrderType
+                final selectedType = oc.selectedOrderType.value;
+                final filteredDocs = snapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final isSub =
+                      data['is_subscription'] == true ||
+                      data['order_type'] == 'subscription' ||
+                      data['type'] == 'subscription';
 
-              // Sort client-side by created_at descending (newest first)
-              final allDocs = snapshot.data!.docs.toList()
-                ..sort((a, b) {
-                  final aData = a.data() as Map<String, dynamic>;
-                  final bData = b.data() as Map<String, dynamic>;
-                  final aTime = aData['created_at'];
-                  final bTime = bData['created_at'];
-                  if (aTime == null && bTime == null) return 0;
-                  if (aTime == null) return 1;
-                  if (bTime == null) return -1;
-                  if (aTime is Timestamp && bTime is Timestamp) {
-                    return bTime.compareTo(aTime);
+                  if (selectedType == 'Subscribed') {
+                    return isSub;
+                  } else {
+                    return !isSub;
                   }
-                  return 0;
-                });
+                }).toList();
 
-              // Show only top 5
-              final docs = allDocs.take(5).toList();
+                if (filteredDocs.isEmpty) {
+                  return _buildEmptyState();
+                }
 
-              return Column(
-                children: [
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: docs.length,
-                    itemBuilder: (context, index) {
-                      final order = Map<String, dynamic>.from(
-                        docs[index].data() as Map,
-                      );
-                      order['docId'] = docs[index].id;
-                      return _orderCard(orderData: order);
-                    },
-                  ),
-                  // Show "See All" footer if there are more than 5
-                  if (allDocs.length > 5)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4, bottom: 8),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () => Get.to(() => AllOrdersPage()),
-                          icon: const Icon(Icons.list_alt_rounded, size: 18),
-                          label: Text(
-                            'View all ${allDocs.length} orders',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
+                // Sort client-side by created_at descending (newest first)
+                final allDocs = filteredDocs
+                  ..sort((a, b) {
+                    final aData = a.data() as Map<String, dynamic>;
+                    final bData = b.data() as Map<String, dynamic>;
+                    final aTime = aData['created_at'];
+                    final bTime = bData['created_at'];
+                    if (aTime == null && bTime == null) return 0;
+                    if (aTime == null) return 1;
+                    if (bTime == null) return -1;
+                    if (aTime is Timestamp && bTime is Timestamp) {
+                      return bTime.compareTo(aTime);
+                    }
+                    return 0;
+                  });
+
+                // Show only top 5
+                final docs = allDocs.take(5).toList();
+
+                return Column(
+                  children: [
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: docs.length,
+                      itemBuilder: (context, index) {
+                        final order = Map<String, dynamic>.from(
+                          docs[index].data() as Map,
+                        );
+                        order['docId'] = docs[index].id;
+                        return _orderCard(orderData: order);
+                      },
+                    ),
+                    // Show "See All" footer if there are more than 5
+                    if (allDocs.length > 5)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, bottom: 8),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => Get.to(() => AllOrdersPage()),
+                            icon: const Icon(Icons.list_alt_rounded, size: 18),
+                            label: Text(
+                              'View all ${allDocs.length} orders',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: _kPrimary,
-                            side: const BorderSide(
-                              color: _kPrimary,
-                              width: 1.5,
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: _kPrimary,
+                              side: const BorderSide(
+                                color: _kPrimary,
+                                width: 1.5,
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              );
+                  ],
+                );
+              });
             },
           ),
         ],
@@ -155,17 +242,23 @@ class OrderScreen extends StatelessWidget {
       centerTitle: false,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            'Welcome Back! 👋',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 20,
-              letterSpacing: 0.2,
-            ),
+        children: [
+          Row(
+            children: const [
+              Text(
+                'Welcome Back! ',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 22,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              _ShakingEmoji(),
+            ],
           ),
-          Text(
+
+          const Text(
             'Manage your incoming orders',
             style: TextStyle(
               color: Colors.white70,
@@ -916,12 +1009,16 @@ class AllOrdersPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'All Orders',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w800,
-            fontSize: 20,
+        title: Obx(
+          () => Text(
+            oc.selectedOrderType.value == 'Orders'
+                ? 'All Orders'
+                : 'All Subscriptions',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 20,
+            ),
           ),
         ),
       ),
@@ -939,64 +1036,82 @@ class AllOrdersPage extends StatelessWidget {
               child: CircularProgressIndicator(color: _kPrimary),
             );
           }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: _kPrimary.withValues(alpha: 0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.receipt_long_rounded,
-                      size: 48,
-                      color: _kPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'No Orders Yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
+          return Obx(() {
+            // Filter based on selectedOrderType
+            final selectedType = oc.selectedOrderType.value;
+            final filteredDocs = snapshot.data!.docs.where((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              final isSub =
+                  data['is_subscription'] == true ||
+                  data['order_type'] == 'subscription' ||
+                  data['type'] == 'subscription';
 
-          // Sort client-side by created_at descending (newest first)
-          final docs = snapshot.data!.docs.toList()
-            ..sort((a, b) {
-              final aData = a.data() as Map<String, dynamic>;
-              final bData = b.data() as Map<String, dynamic>;
-              final aTime = aData['created_at'];
-              final bTime = bData['created_at'];
-              if (aTime == null && bTime == null) return 0;
-              if (aTime == null) return 1;
-              if (bTime == null) return -1;
-              if (aTime is Timestamp && bTime is Timestamp) {
-                return bTime.compareTo(aTime);
+              if (selectedType == 'Subscribed') {
+                return isSub;
+              } else {
+                return !isSub;
               }
-              return 0;
-            });
+            }).toList();
 
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final order = Map<String, dynamic>.from(
-                docs[index].data() as Map,
+            if (filteredDocs.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: _kPrimary.withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.receipt_long_rounded,
+                        size: 48,
+                        color: _kPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'No Orders Yet',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1A1A2E),
+                      ),
+                    ),
+                  ],
+                ),
               );
-              order['docId'] = docs[index].id;
-              return _orderCard(orderData: order);
-            },
-          );
+            }
+
+            // Sort client-side by created_at descending (newest first)
+            final docs = filteredDocs
+              ..sort((a, b) {
+                final aData = a.data() as Map<String, dynamic>;
+                final bData = b.data() as Map<String, dynamic>;
+                final aTime = aData['created_at'];
+                final bTime = bData['created_at'];
+                if (aTime == null && bTime == null) return 0;
+                if (aTime == null) return 1;
+                if (bTime == null) return -1;
+                if (aTime is Timestamp && bTime is Timestamp) {
+                  return bTime.compareTo(aTime);
+                }
+                return 0;
+              });
+
+            return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                final order = Map<String, dynamic>.from(
+                  docs[index].data() as Map,
+                );
+                order['docId'] = docs[index].id;
+                return _orderCard(orderData: order);
+              },
+            );
+          });
         },
       ),
     );
@@ -1628,6 +1743,86 @@ class DashboardStatsCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ShakingEmoji extends StatefulWidget {
+  const _ShakingEmoji({Key? key}) : super(key: key);
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _ShakingEmojiState createState() => _ShakingEmojiState();
+}
+
+class _ShakingEmojiState extends State<_ShakingEmoji>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    // 0.15 radians is ~8.5 degrees. It will go back and forth.
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    // Creates a sequence that rotates left, then right, then centers
+    _animation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.25).chain(CurveTween(curve: Curves.easeOut)), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.25, end: -0.2).chain(CurveTween(curve: Curves.easeInOut)), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -0.2, end: 0.15).chain(CurveTween(curve: Curves.easeInOut)), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 0.15, end: -0.1).chain(CurveTween(curve: Curves.easeInOut)), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -0.1, end: 0.0).chain(CurveTween(curve: Curves.easeIn)), weight: 1),
+    ]).animate(_controller);
+
+    // Option 1: Loop forever
+    // _controller.repeat();
+
+    // Option 2: Delay and then play occasionally (looks more natural)
+    _playAnimationWithDelay();
+  }
+
+  void _playAnimationWithDelay() async {
+    if (!mounted) return;
+    await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+    _controller.forward(from: 0.0);
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Future.delayed(const Duration(seconds: 4), () {
+          if (mounted) _controller.forward(from: 0.0);
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _animation.value,
+          child: const Text(
+            '👋',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 22,
+              letterSpacing: 0.2,
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:partner_foodbnb/controller/auth_controller.dart';
 import 'package:partner_foodbnb/controller/theme_controller.dart';
 import 'package:partner_foodbnb/view/screens/customerhelp_screen.dart';
 import 'package:partner_foodbnb/view/screens/edit_profile.dart';
+import 'package:partner_foodbnb/view/screens/account_deletion_screen.dart';
 import 'package:partner_foodbnb/widgets/bunny_cdn_image.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -156,9 +157,26 @@ class ProfileScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                   () {
-                    _launchURL('https://foodbnb-global.web.app/');
+                    _launchURL('https://foodbnb-global.web.app/support');
                   },
                 ),
+
+                //account deletion
+                settingTile(
+                  Icons.delete,
+                  Colors.red,
+                  'Account Deletion',
+                  'Delete your account',
+                  Icon(
+                    Icons.arrow_forward_ios_outlined,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                  () {
+                    Get.to(() => AccountDeletionScreen());
+                  },
+                ),
+              
                 //subsctiption
                 settingTile(
                   Icons.local_dining,
@@ -178,6 +196,8 @@ class ProfileScreen extends StatelessWidget {
                     );
                   },
                 ),
+
+            
 
                 //notification
                 // settingTile(
@@ -200,23 +220,23 @@ class ProfileScreen extends StatelessWidget {
                 // ),
 
                 //darkmode
-                settingTile(
-                  Icons.dark_mode_rounded,
-                  Colors.black,
-                  'Dark Mode',
-                  'Go Dark.',
-                  Obx(
-                    () => Switch(
-                      value: themeController.isDarkMode.value,
-                      onChanged: themeController.toggleTheme,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: Colors.black,
-                      inactiveThumbColor: Colors.white,
-                      inactiveTrackColor: Colors.grey,
-                    ),
-                  ),
-                  () {},
-                ),
+                // settingTile(
+                //   Icons.dark_mode_rounded,
+                //   Colors.black,
+                //   'Dark Mode',
+                //   'Go Dark.',
+                //   Obx(
+                //     () => Switch(
+                //       value: themeController.isDarkMode.value,
+                //       onChanged: themeController.toggleTheme,
+                //       activeThumbColor: Colors.white,
+                //       activeTrackColor: Colors.black,
+                //       inactiveThumbColor: Colors.white,
+                //       inactiveTrackColor: Colors.grey,
+                //     ),
+                //   ),
+                //   () {},
+                // ),
               ],
             ),
             SizedBox(height: 10),

@@ -23,8 +23,9 @@ class DishMenuController extends GetxController {
   Rx isLoading = false.obs;
   RxInt currentQuantity = 0.obs; // for button
   RxList<String> ingredientsList = <String>[].obs;
-  RxString selectedImagePath = ''.obs; //image for dish
-  RxString existingImageUrl = ''.obs; // existing image URL when editing
+  RxList<String> selectedImagePaths = <String>[].obs; // images for dish
+  RxList<String> existingImageUrls =
+      <String>[].obs; // existing image URLs when editing
 
   //for menuscreen searchbar
   final TextEditingController searchbar = TextEditingController();
@@ -52,70 +53,100 @@ class DishMenuController extends GetxController {
     orderStreamSubscription = FirebaseFirestore.instance
         .collection('orders')
         .where('kitchen_id', isEqualTo: currentUserId)
+        .where('order_status', isEqualTo: 'Pending')
         .snapshots()
         .listen((snapshot) {
           for (var doc in snapshot.docs) {
             final orderId = doc.id;
 
-            // Skip if already processed
+            // Skip if already processed in this session
             if (processedOrderIds.contains(orderId)) continue;
 
             final orderData = doc.data();
-            final status = orderData['order_status'] ?? '';
-
-            // Only process pending orders (freshly placed)
-            if (status == 'Pending') {
+            // Skip if already processed according to Firestore
+            if (orderData['_inventory_processed'] == true) {
               processedOrderIds.add(orderId);
-              updateDishQuantitiesForOrder(orderData);
+              continue;
             }
+
+            log('DEBUG: Processing inventory for order: $orderId');
+            processedOrderIds.add(orderId);
+            updateDishQuantitiesForOrder(orderData, doc.reference);
           }
         });
   }
 
-  /// Update dish quantities based on order items
+  /// Update dish quantities based on order items using a Transaction for atomicity
   Future<void> updateDishQuantitiesForOrder(
     Map<String, dynamic> orderData,
+    DocumentReference orderRef,
   ) async {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return;
+
     try {
       final items = orderData['items'] as List<dynamic>?;
       if (items == null || items.isEmpty) return;
 
-      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      if (currentUserId == null) return;
+      final String orderId = orderData['order_id'] ?? 'Unknown';
 
-      final batch = FirebaseFirestore.instance.batch();
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        // 1. Check the flag INSIDE the transaction
+        final orderSnapshot = await transaction.get(orderRef);
+        final data = orderSnapshot.data() as Map<String, dynamic>?;
 
-      for (var itemData in items) {
-        final item = itemData as Map<String, dynamic>;
-        final dishName = item['dish_name'] as String?;
-        final quantity = (item['quantity'] ?? 1) as int;
-
-        if (dishName == null || dishName.isEmpty) continue;
-
-        // Try to find dish by name and kitchen_id
-        final querySnapshot = await FirebaseFirestore.instance
-            .collection('dish')
-            .where('dish_name', isEqualTo: dishName)
-            .where('kitchen_id', isEqualTo: currentUserId)
-            .limit(1)
-            .get();
-
-        if (querySnapshot.docs.isNotEmpty) {
-          final dishDoc = querySnapshot.docs.first;
-          final currentQty = (dishDoc['qnt_available'] ?? 0) as int;
-          final newQty = (currentQty - quantity).clamp(0, currentQty);
-
-          // Update in batch
-          batch.update(dishDoc.reference, {'qnt_available': newQty});
+        if (orderSnapshot.exists && data?['_inventory_processed'] == true) {
+          log('DEBUG: Transaction aborted, order already processed: $orderId');
+          return;
         }
-      }
 
-      // Commit all updates
-      await batch.commit();
+        // 2. Prepare dish updates
+        for (var itemData in items) {
+          final item = itemData as Map<String, dynamic>;
+          final dishName = (item['dish_name'] as String?)?.trim();
+          final quantity = (item['quantity'] ?? 1) as int;
 
-      log('Inventory updated for order: ${orderData['order_id']}');
+          if (dishName == null || dishName.isEmpty) continue;
+
+          final dishQuery = await FirebaseFirestore.instance
+              .collection('dish')
+              .where('dish_name', isEqualTo: dishName)
+              .where('kitchen_id', isEqualTo: currentUserId)
+              .limit(1)
+              .get();
+
+          if (dishQuery.docs.isNotEmpty) {
+            final dishRef = dishQuery.docs.first.reference;
+            final dishSnapshot = await transaction.get(dishRef);
+            if (dishSnapshot.exists) {
+              final currentQty =
+                  (dishSnapshot.get('qnt_available') ?? 0) as int;
+              final newQty = (currentQty - quantity).clamp(0, currentQty);
+
+              transaction.update(dishRef, {'qnt_available': newQty});
+              log(
+                'DEBUG: TX - Queued update for $dishName: $currentQty -> $newQty',
+              );
+            }
+          }
+        }
+
+        // 3. Mark order as processed
+        transaction.update(orderRef, {'_inventory_processed': true});
+      });
+
+      log('DEBUG: Transaction successfully committed for order: $orderId');
+
+      Get.snackbar(
+        'Inventory Synced',
+        'Updated stock for Order #$orderId',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.black87,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
     } catch (e) {
-      log('Error updating dish quantities for order: $e');
+      log('Error in transaction sync: $e');
     }
   }
 
@@ -132,24 +163,27 @@ class DishMenuController extends GetxController {
     ingredientInput.clear();
   }
 
-  /// Uploads the currently selected dish image to BunnyCDN and returns its URL.
-  /// Returns an empty string if no image is selected.
-  Future<String> uploadDishImage(String dishId) async {
-    if (selectedImagePath.value.isEmpty) return '';
+  /// Uploads all currently selected dish images to BunnyCDN and returns their URLs.
+  Future<List<String>> uploadDishImages(String dishId) async {
+    if (selectedImagePaths.isEmpty) return [];
 
+    List<String> uploadedUrls = [];
     try {
-      final url = await BunnyCdnService.instance.uploadDishImage(
-        File(selectedImagePath.value),
-      );
-      return url;
+      for (var path in selectedImagePaths) {
+        final url = await BunnyCdnService.instance.uploadDishImage(File(path));
+        if (url.isNotEmpty) {
+          uploadedUrls.add(url);
+        }
+      }
+      return uploadedUrls;
     } catch (e) {
       log('BunnyCDN dish image upload error: $e');
       Get.snackbar(
         'Warning',
-        'Image upload failed: $e',
+        'Some images failed to upload: $e',
         duration: const Duration(seconds: 6),
       );
-      return '';
+      return uploadedUrls;
     }
   }
 
@@ -167,8 +201,8 @@ class DishMenuController extends GetxController {
       //id for dish
       final String id = DateTime.now().microsecondsSinceEpoch.toString();
 
-      // Upload image first (if selected)
-      final String imageUrl = await uploadDishImage(id);
+      // Upload images first (if selected)
+      final List<String> uploadedUrls = await uploadDishImages(id);
 
       // 'Dish' collection data create/add to db
       await FirebaseFirestore.instance.collection('dish').doc(id).set({
@@ -186,10 +220,12 @@ class DishMenuController extends GetxController {
         'qnt_total': currentQuantity.value,
         "kitchen_id": FirebaseAuth.instance.currentUser?.uid,
         "kitchen_name": ac.userData['kitchen_name'] ?? '',
-        "images": imageUrl.isNotEmpty ? [imageUrl] : [],
+        "images": uploadedUrls,
         // 'dish_image': imageUrl,
         'ingredients': ingredientsList.toList(),
         'preparation_time': preparationTimeInput.text.trim(),
+        'food_rating': 0.0,
+        'order_placed': 0,
       });
       clearDishForm();
       Get.snackbar(
@@ -233,8 +269,8 @@ class DishMenuController extends GetxController {
     selectedThaliType.value = '';
 
     currentQuantity.value = 0;
-    selectedImagePath.value = '';
-    existingImageUrl.value = '';
+    selectedImagePaths.clear();
+    existingImageUrls.clear();
     ingredientsList.clear();
     ingredientInput.clear();
     preparationTimeInput.clear();
@@ -244,8 +280,11 @@ class DishMenuController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Upload new image if a new one was selected
-      final String imageUrl = await uploadDishImage(id);
+      // Upload new images if any were selected
+      final List<String> newUploadedUrls = await uploadDishImages(id);
+
+      // Combine existing images that were kept with new uploaded ones
+      final List<String> allImages = [...existingImageUrls, ...newUploadedUrls];
 
       final Map<String, dynamic> updateData = {
         'dish_id': id,
@@ -262,10 +301,8 @@ class DishMenuController extends GetxController {
         'preparation_time': preparationTimeInput.text.trim(),
       };
 
-      // Only update image fields if a new image was uploaded
-      if (imageUrl.isNotEmpty) {
-        updateData['images'] = [imageUrl];
-      }
+      // Always update images array to reflect removals/additions
+      updateData['images'] = allImages;
 
       await FirebaseFirestore.instance
           .collection('dish')
