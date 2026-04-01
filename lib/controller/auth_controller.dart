@@ -88,6 +88,31 @@ class AuthController extends GetxController {
   final RxBool isActive = false.obs;
 
   final RxMap userData = {}.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _listenToKitchenChanges();
+  }
+
+  /// Listen to real-time changes in the kitchen document
+  void _listenToKitchenChanges() {
+    try {
+      firebase
+          .collection('moms_kitchens')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .snapshots()
+          .listen((snapshot) {
+            if (snapshot.exists) {
+              userData.value = snapshot.data() ?? {};
+              log("Kitchen data updated in real-time: $userData");
+            }
+          });
+    } catch (e) {
+      log("Error listening to kitchen changes: $e");
+    }
+  }
+
   Future<void> getUserData() async {
     try {
       var snapshot = await firebase
@@ -205,6 +230,7 @@ class AuthController extends GetxController {
               "wallet_balance": 0,
               "lifetime_earnings": 0,
               'weekly_earning': 0,
+              'total_revenue': 0,
               "push_token": "",
               'order_status': '',
               "phone": regPhoneController.text,
@@ -260,6 +286,7 @@ class AuthController extends GetxController {
               "wallet_balance": 0,
               "lifetime_earnings": 0,
               'weekly_earning': 0,
+              'total_revenue': 0,
               "push_token": "",
               'orde_status': '',
               "phone": regPhoneController.text,
@@ -348,6 +375,24 @@ class AuthController extends GetxController {
     } catch (e) {
       log(e.toString());
     }
+  }
+//account deletion and deactivation
+  Future<void> deleteAccount() async {
+    log('Delete account button clicked.');
+    Get.snackbar(
+      'Coming Soon',
+      'Account deletion will be available soon.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  Future<void> deactivateAccount() async {
+    log('Deactivate account button clicked.');
+    Get.snackbar(
+      'Coming Soon',
+      'Account deactivation will be available soon.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   Future<String> _uploadProfileImage() async {

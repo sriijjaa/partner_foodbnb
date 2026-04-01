@@ -85,7 +85,16 @@ class EarningsScreen extends StatelessWidget {
                         const SizedBox(height: 10),
                         Obx(
                           () => Text(
-                            ac.userData.value['wallet_balance'].toString(),
+                            () {
+                              final totalRev =
+                                  ac.userData.value['total_revenue'] ?? 0;
+                              if (totalRev is num) {
+                                return totalRev % 1 == 0
+                                    ? totalRev.toInt().toString()
+                                    : totalRev.toStringAsFixed(2);
+                              }
+                              return totalRev.toString();
+                            }(),
                             style: TextStyle(
                               color: textMain,
                               fontSize: 38,
@@ -101,7 +110,7 @@ class EarningsScreen extends StatelessWidget {
                             onPressed: () {
                               final balance =
                                   double.tryParse(
-                                    ac.userData.value['wallet_balance']
+                                    (ac.userData.value['total_revenue'] ?? 0)
                                         .toString(),
                                   ) ??
                                   0.0;
